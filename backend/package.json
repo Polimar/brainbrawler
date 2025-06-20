@@ -1,0 +1,44 @@
+{
+  "name": "brainbrawler-backend",
+  "version": "1.0.0",
+  "description": "BrainBrawler multiplayer quiz game backend",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "db:migrate": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio",
+    "db:seed": "node src/utils/seed.js",
+    "db:reset": "prisma migrate reset",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["quiz", "multiplayer", "game", "realtime", "kafka"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.10.1",
+    "bcryptjs": "^3.0.2",
+    "compression": "^1.8.0",
+    "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
+    "express": "^5.1.0",
+    "google-auth-library": "^10.1.0",
+    "helmet": "^8.1.0",
+    "ioredis": "^5.6.1",
+    "jsonwebtoken": "^9.0.2",
+    "kafkajs": "^2.2.4",
+    "multer": "^2.0.1",
+    "socket.io": "^4.8.1",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.5.0",
+    "nodemon": "^3.1.10",
+    "prisma": "^6.10.1"
+  }
+}
