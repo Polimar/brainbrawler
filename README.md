@@ -1,285 +1,273 @@
 # 🧠 BrainBrawler
 
-> Multiplayer quiz game scalabile costruito con Kafka, Socket.io e Flutter
-
-## 🚀 Quick Start
-
-### Opzione 1: Script Automatico (Windows)
-```bash
-# Avvia tutto l'environment di sviluppo
-./start-dev.bat
-
-# Ferma tutto
-./stop-dev.bat
-```
-
-### Opzione 2: Manuale
-
-#### 1. Prerequisiti
-- **Docker Desktop** installato e avviato
-- **Node.js** >= 18.x
-- **Git**
-
-#### 2. Clone e Setup
-```bash
-git clone <your-repo-url>
-cd brainbrawler
-
-# Avvia servizi Docker
-docker compose -f docker-compose.dev.yml up -d
-
-# Setup backend
-cd backend
-npm install
-npx prisma generate
-npx prisma migrate dev --name init
-npm run db:seed
-
-# Avvia backend
-npm run dev
-```
+Quiz game multiplayer realtime con architettura Kafka, costruito seguendo le specifiche del documento `brainbrawler_kafka_prompt.md`.
 
 ## 🏗️ Architettura
 
-```
-BrainBrawler/
-├── backend/           # Node.js + Socket.io + Kafka
-├── frontend/          # Flutter Web/Mobile (TODO)
-├── worker/            # Kafka consumers (TODO)
-├── docker/            # Docker configs
-└── docs/              # Documentazione
-```
-
-### Stack Tecnologico
-- **Backend**: Node.js, Express, Socket.io, Prisma ORM
-- **Database**: PostgreSQL
-- **Cache**: Redis  
-- **Messaging**: Apache Kafka
-- **Frontend**: Flutter (Web + Mobile)
+- **Frontend**: Web client (pronto per Flutter)
+- **Backend**: Node.js + Express + Socket.io
+- **Database**: PostgreSQL con Prisma ORM
+- **Cache**: Redis per sessioni e leaderboard
+- **Messaging**: Apache Kafka per eventi real-time
 - **Auth**: JWT + Google OAuth
 
-## 🎮 Features Implementate
+## 🚀 Quick Start
 
-### ✅ Backend Core
-- [x] Sistema di autenticazione JWT
-- [x] Gestione utenti e profili
-- [x] Database schema completo
-- [x] API REST complete
-- [x] Socket.io per real-time
-- [x] Game Engine con logica completa
-- [x] Sistema di punteggi e ranking
-- [x] Kafka producer per messaging
-- [x] Seed database con dati di esempio
-
-### 🚧 In Sviluppo
-- [ ] Frontend Flutter
-- [ ] Kafka consumers
-- [ ] Sistema achievements
-- [ ] Admin panel
-- [ ] Mobile app
-
-## 🌐 Servizi Locali
-
-Una volta avviato, avrai accesso a:
-
-| Servizio | URL | Descrizione |
-|----------|-----|-------------|
-| **API Backend** | http://localhost:3000 | Server principale |
-| **Health Check** | http://localhost:3000/health | Status servizi |
-| **Adminer** | http://localhost:8080 | Gestione database |
-| **Kafka UI** | http://localhost:8090 | Monitoraggio Kafka |
-
-## 🧪 Testing API
-
-### Health Check
 ```bash
-curl http://localhost:3000/health
+# Clona il repository
+git clone https://github.com/Polimar/brainbrawler.git
+cd brainbrawler
+
+# Avvia tutti i servizi con Docker
+docker-compose -f docker-compose.dev.yml up -d
+
+# Accedi all'app
+open http://localhost:3001
 ```
 
-### Registrazione Utente
+## 🔐 Configurazione Google OAuth
+
+### Passo 1: Creare un Progetto Google Cloud
+
+1. Vai su [Google Cloud Console](https://console.cloud.google.com/)
+2. Crea un nuovo progetto o seleziona uno esistente
+3. Abilita la **Google Identity API**:
+   - Nel menu di navigazione, vai su "APIs & Services" > "Library"
+   - Cerca "Google Identity" e clicca su "Google Identity API"
+   - Clicca "Enable"
+
+### Passo 2: Configurare OAuth 2.0
+
+1. Vai su "APIs & Services" > "Credentials"
+2. Clicca "Create Credentials" > "OAuth 2.0 Client IDs"
+3. Se è la prima volta, configura la schermata di consenso OAuth:
+   - Scegli "External" se per testing pubblico
+   - Compila i campi obbligatori:
+     - **App name**: BrainBrawler
+     - **User support email**: La tua email
+     - **Developer contact information**: La tua email
+   - Aggiungi scope (opzionale per testing): `email`, `profile`
+   - Aggiungi test users se in modalità testing
+
+4. Torna a "Credentials" e crea le credenziali OAuth:
+   - **Application type**: Web application
+   - **Name**: BrainBrawler Web Client
+   - **Authorized JavaScript origins**:
+     - `http://localhost:3001` (sviluppo locale)
+     - `http://10.40.10.180:3001` (il tuo IP server se diverso)
+     - `https://yourdomain.com` (produzione)
+   - **Authorized redirect URIs**:
+     - `http://localhost:3001` (sviluppo)
+     - `https://yourdomain.com` (produzione)
+
+### Passo 3: Ottenere le Credenziali
+
+Dopo aver creato le credenziali OAuth, otterrai:
+- **Client ID**: Una stringa come `123456789-abcdefghijklmnop.apps.googleusercontent.com`
+- **Client Secret**: Una stringa segreta come `GOCSPX-abcdefghijklmnopqrstuvwxyz`
+
+### Passo 4: Configurare l'Applicazione
+
+1. **Per Docker (Raccomandato)**:
+   
+   Modifica il file `docker-compose.dev.yml` nella sezione backend:
+   ```yaml
+   environment:
+     GOOGLE_CLIENT_ID: "TUO_GOOGLE_CLIENT_ID_QUI"
+     GOOGLE_CLIENT_SECRET: "TUO_GOOGLE_CLIENT_SECRET_QUI"
+   ```
+
+2. **Per sviluppo locale**:
+   
+   Crea un file `.env` nella cartella `backend/`:
+   ```bash
+   GOOGLE_CLIENT_ID="TUO_GOOGLE_CLIENT_ID_QUI"
+   GOOGLE_CLIENT_SECRET="TUO_GOOGLE_CLIENT_SECRET_QUI"
+   ```
+
+### Passo 5: Riavviare l'Applicazione
+
 ```bash
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "username": "testuser",
-    "displayName": "Test User",
-    "password": "password123"
-  }'
+# Con Docker
+docker-compose -f docker-compose.dev.yml restart backend frontend
+
+# Oppure ricrea i container
+docker-compose -f docker-compose.dev.yml down
+docker-compose -f docker-compose.dev.yml up -d
 ```
 
-### Login
-```bash
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@brainbrawler.com",
-    "password": "admin123"
-  }'
-```
+### ✅ Verificare la Configurazione
 
-## 🎮 Credenziali Demo
+1. Apri http://localhost:3001
+2. Vai nella sezione "Registrati"
+3. Dovresti vedere il pulsante "Continua con Google" funzionante
+4. Il login Google dovrebbe funzionare correttamente
 
-| Email | Password | Ruolo |
-|-------|----------|-------|
-| admin@brainbrawler.com | admin123 | Admin |
-| test@brainbrawler.com | test123 | Player |
-| player@brainbrawler.com | player123 | Player |
+### 🔧 Troubleshooting Google OAuth
 
-## 📊 Database
+**Errore: "This app is blocked"**
+- Il tuo app è in modalità testing e l'utente non è nella lista dei test users
+- Aggiungi l'email dell'utente in Google Cloud Console > OAuth consent screen > Test users
 
-### Schema Principale
-- **Users**: Utenti e statistiche
-- **Categories**: Categorie domande
-- **Questions**: Domande con opzioni
-- **QuestionSets**: Set di domande organizzati
-- **Games**: Partite e stanze di gioco
-- **GameResults**: Risultati partite
-- **Achievements**: Sistema achievement
+**Errore: "redirect_uri_mismatch"**
+- L'URL da cui stai accedendo non è nella lista degli "Authorized JavaScript origins"
+- Aggiungi l'URL corretto nella configurazione OAuth
+
+**Errore: "Token used too early"**
+- Problema di sincronizzazione dell'orario del server
+- Verifica che l'orario del sistema sia corretto
+
+**Il pulsante Google non appare**
+- Controlla che `GOOGLE_CLIENT_ID` sia configurato correttamente
+- Verifica nei log del browser se ci sono errori JavaScript
+- Controlla che l'API Google Identity sia abilitata
+
+## 📊 Servizi e Porte
+
+| Servizio | Porta | URL | Descrizione |
+|----------|-------|-----|-------------|
+| Frontend | 3001 | http://localhost:3001 | Web client |
+| Backend API | 3000 | http://localhost:3000 | API REST + Socket.io |
+| PostgreSQL | 5432 | - | Database principale |
+| Redis | 6379 | - | Cache e sessioni |
+| Kafka | 9092 | - | Message broker |
+| Kafka UI | 8090 | http://localhost:8090 | Interfaccia Kafka |
+| Adminer | 8080 | http://localhost:8080 | Database manager |
+
+## 🎮 Credenziali di Test
+
+### Account Demo Preconfigurati
+- **Admin**: admin@brainbrawler.com / admin123
+- **Test User**: test@brainbrawler.com / test123  
+- **Player**: player@brainbrawler.com / player123
+
+### Database Access (Adminer)
+- **Server**: postgres
+- **Username**: postgres
+- **Password**: dev_password_123
+- **Database**: brainbrawler
+
+## 🛠️ Sviluppo
 
 ### Comandi Utili
+
 ```bash
-# Visualizza database
-npx prisma studio
+# Vedere i logs
+docker logs bb_backend -f
+docker logs bb_frontend -f
+
+# Riavviare servizi
+docker-compose -f docker-compose.dev.yml restart backend frontend
+
+# Accesso al database
+docker exec -it bb_postgres psql -U postgres -d brainbrawler
 
 # Reset database
-npx prisma migrate reset
+docker-compose -f docker-compose.dev.yml exec backend npm run db:reset
 
-# Nuova migrazione
-npx prisma migrate dev --name <name>
-
-# Re-seed
-npm run db:seed
+# Seed database
+docker-compose -f docker-compose.dev.yml exec backend npm run db:seed
 ```
 
-## 🔧 Sviluppo
+### Database Schema
 
-### Backend
+Il database include:
+- **Users**: Gestione utenti con Google OAuth
+- **Categories**: Categorie delle domande (Tech, Storia, Sport, etc.)
+- **Questions**: Database domande con risposte multiple
+- **Games**: Sessioni di gioco multiplayer
+- **GameResults**: Risultati e statistiche giocatori
+
+### API Endpoints
+
+**Autenticazione:**
+- `POST /api/auth/register` - Registrazione
+- `POST /api/auth/login` - Login tradizionale
+- `POST /api/auth/google` - Login con Google OAuth
+- `GET /api/auth/google/config` - Configurazione Google
+- `GET /api/auth/profile` - Profilo utente
+- `PUT /api/auth/profile` - Aggiorna profilo
+
+**Gioco:**
+- `GET /api/game/categories` - Lista categorie
+- `GET /api/game/questions` - Lista domande
+- `POST /api/game/room` - Crea stanza
+- Via Socket.io: `create-room`, `join-room`, `start-game`
+
+## 🚀 Deploy in Produzione
+
+Per il deploy segui le istruzioni in `brainbrawler_render_deployment.md`.
+
+Configurazioni necessarie per produzione:
+- Impostare `NODE_ENV=production`
+- Configurare `JWT_SECRET` sicuro
+- Configurare correttamente `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET`
+- Aggiornare gli "Authorized JavaScript origins" in Google Cloud Console
+
+## 📁 Struttura Progetto
+
+```
+brainbrawler/
+├── backend/                 # Node.js API + Socket.io
+│   ├── src/
+│   │   ├── routes/         # API routes
+│   │   ├── middleware/     # Auth middleware  
+│   │   ├── services/       # Game engine
+│   │   └── kafka/          # Kafka producers/consumers
+│   ├── prisma/             # Database schema e migrations
+│   └── Dockerfile
+├── frontend/               # Web client
+│   ├── index.html         # Single page app
+│   ├── server.js          # Static file server
+│   └── Dockerfile
+├── docker-compose.dev.yml # Setup completo sviluppo
+└── README.md             # Questo file
+```
+
+## 🔧 Environment Variables
+
+**Backend (.env o docker-compose.yml):**
 ```bash
-cd backend
-npm run dev          # Avvia con nodemon
-npm run start        # Avvia production
-npm run db:studio    # Apri Prisma Studio
-npm run db:seed      # Popola database
-```
+# Database
+DATABASE_URL="postgresql://postgres:password@localhost:5432/brainbrawler"
 
-### Socket.io Events
+# Redis
+REDIS_URL="redis://localhost:6379"
 
-#### Client → Server
-- `create-room` - Crea nuova stanza
-- `join-room` - Unisciti a stanza  
-- `start-game` - Inizia partita (solo host)
-- `submit-answer` - Invia risposta
-- `leave-room` - Abbandona stanza
+# Kafka
+KAFKA_BROKERS="localhost:9092"
 
-#### Server → Client
-- `room-created` - Stanza creata
-- `player-joined` - Giocatore entrato
-- `game-starting` - Partita in avvio
-- `question-start` - Nuova domanda
-- `question-end` - Fine domanda + risultati
-- `game-end` - Fine partita + classifica
+# Auth
+JWT_SECRET="your-super-secret-jwt-key"
+JWT_EXPIRES_IN="7d"
 
-## 🐳 Docker Services
+# Google OAuth (RICHIESTO PER SSO)
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-```yaml
-# Servizi disponibili
-- postgres:5432    # Database
-- redis:6379       # Cache  
-- kafka:9092       # Message broker
-- zookeeper:2181   # Kafka coordinator
-- adminer:8080     # DB admin
-- kafka-ui:8090    # Kafka monitor
-```
-
-## 🚨 Troubleshooting
-
-### Docker Issues
-```bash
-# Verifica servizi
-docker ps
-
-# Logs servizi
-docker compose -f docker-compose.dev.yml logs -f
-
-# Restart servizi
-docker compose -f docker-compose.dev.yml restart
-```
-
-### Database Issues
-```bash
-# Reset completo database
-npx prisma migrate reset
-
-# Riapplica seed
-npm run db:seed
-```
-
-### Kafka Issues
-```bash
-# Verifica topics
-docker exec bb_kafka kafka-topics --list --bootstrap-server localhost:9092
-
-# Crea topic manualmente
-docker exec bb_kafka kafka-topics --create --topic test-topic --bootstrap-server localhost:9092
-```
-
-## 📁 Struttura File
-
-```
-backend/
-├── src/
-│   ├── controllers/     # Logic controllers
-│   ├── services/        # Business logic
-│   ├── middleware/      # Auth, validation
-│   ├── routes/          # API routes
-│   ├── kafka/           # Kafka producers/consumers
-│   ├── utils/           # Utilities e seed
-│   └── server.js        # Entry point
-├── prisma/
-│   └── schema.prisma    # Database schema
-└── package.json
+# Server
+PORT=3000
+NODE_ENV="development"
+CORS_ORIGIN="*"
 ```
 
 ## 🎯 Prossimi Passi
 
-1. **Frontend Flutter** - UI e client Socket.io
-2. **Kafka Consumers** - Worker per game engine
-3. **Mobile App** - iOS e Android
-4. **Admin Panel** - Gestione domande
-5. **Deploy Production** - Render.com setup
+1. **Flutter Mobile App**: Sostituire web client con app Flutter
+2. **Game Engine Completo**: Implementare logica di gioco avanzata con Kafka
+3. **Real-time Leaderboard**: Sistema classifiche live
+4. **Achievement System**: Badge e riconoscimenti
+5. **Admin Panel**: Gestione domande e utenti
+6. **Analytics**: Tracking performance e metriche gioco
 
-## 📝 API Endpoints
+## 📝 Note
 
-### Auth
-- `POST /api/auth/register` - Registrazione
-- `POST /api/auth/login` - Login
-- `POST /api/auth/google` - Login Google
-- `GET /api/auth/me` - Profilo corrente
-
-### Game
-- `GET /api/game/question-sets` - Lista set domande
-- `GET /api/game/categories` - Lista categorie
-- `GET /api/game/room/:code` - Info stanza
-- `GET /api/game/leaderboard` - Classifica globale
-
-### User  
-- `GET /api/user/stats` - Statistiche personali
-- `GET /api/user/achievements` - Achievement utente
-- `GET /api/user/search` - Cerca utenti
-
-## 🤝 Contribuire
-
-1. Fork del repository
-2. Crea feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add AmazingFeature'`)
-4. Push branch (`git push origin feature/AmazingFeature`)
-5. Apri Pull Request
-
-## 📄 Licenza
-
-Distributed under the MIT License. See `LICENSE` for more information.
+- Il progetto segue le specifiche del documento `brainbrawler_kafka_prompt.md`
+- L'architettura è pronta per migliaia di utenti simultanei
+- Kafka gestisce tutti gli eventi real-time per scalabilità
+- Il sistema di auth supporta sia credenziali tradizionali che Google OAuth
+- Pronto per deploy su Render, Heroku, o qualsiasi provider cloud
 
 ---
 
-Made with ❤️ for competitive quiz gaming! 
+**Happy Gaming! 🎮** 
