@@ -1,0 +1,16 @@
+{
+  "name": "brainbrawler-frontend",
+  "version": "1.0.0",
+  "description": "BrainBrawler frontend test client",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["quiz", "game", "frontend"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}

@@ -85,6 +85,65 @@ services:
     networks:
       - brainbrawler
 
+  # Backend API
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bb_backend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+      - kafka
+    environment:
+      DATABASE_URL: "postgresql://postgres:dev_password_123@postgres:5432/brainbrawler"
+      REDIS_URL: "redis://redis:6379"
+      KAFKA_BROKERS: "kafka:9092"
+      KAFKA_CLIENT_ID: "brainbrawler-game-service"
+      JWT_SECRET: "brainbrawler-super-secret-jwt-key-for-dev-only-123456789"
+      JWT_EXPIRES_IN: "7d"
+      GOOGLE_CLIENT_ID: "your-google-client-id"
+      GOOGLE_CLIENT_SECRET: "your-google-client-secret"
+      PORT: 3000
+      HOST: "0.0.0.0"
+      NODE_ENV: "development"
+      CORS_ORIGIN: "*"
+      QUESTIONS_PER_GAME: 10
+      TIME_PER_QUESTION: 15
+      MAX_PLAYERS_PER_ROOM: 8
+      ROOM_CODE_LENGTH: 6
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - /app/prisma/migrations
+    networks:
+      - brainbrawler
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Frontend Web Client
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bb_frontend
+    ports:
+      - "3001:3001"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - brainbrawler
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:

@@ -185,8 +185,10 @@ async function startServer() {
     console.log('✅ Game engine started');
     
     const PORT = process.env.PORT || 3000;
-    server.listen(PORT, () => {
-      console.log(`🚀 BrainBrawler server running on port ${PORT}`);
+    const HOST = process.env.HOST || '0.0.0.0';
+    
+    server.listen(PORT, HOST, () => {
+      console.log(`🚀 BrainBrawler server running on ${HOST}:${PORT}`);
       console.log(`📊 Health check: http://localhost:${PORT}/health`);
       if (process.env.NODE_ENV === 'development') {
         console.log(`📊 Adminer: http://localhost:8080`);
