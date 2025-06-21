@@ -353,6 +353,78 @@
             margin-bottom: 20px;
         }
 
+        /* Advertisement Styles */
+        .ad-banner {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 2px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+            color: #6c757d;
+            font-size: 0.9rem;
+            display: none; /* Hidden by default */
+        }
+
+        .ad-banner.show {
+            display: block;
+        }
+
+        .ad-banner-top {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .ad-banner-sidebar {
+            background: rgba(248, 249, 250, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .ad-banner-native {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+
+        .ad-placeholder {
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ad-placeholder .icon {
+            font-size: 2rem;
+            opacity: 0.5;
+        }
+
+        .ad-disclaimer {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 10px;
+        }
+
+        .premium-notice {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .premium-notice.show {
+            display: block;
+        }
+
         @media (max-width: 768px) {
             .main-content {
                 grid-template-columns: 1fr;
@@ -373,6 +445,11 @@
                 flex-direction: row;
                 justify-content: center;
                 flex-wrap: wrap;
+            }
+
+            .ad-banner-top {
+                margin: 10px auto;
+                padding: 0 10px;
             }
         }
     </style>
@@ -397,6 +474,21 @@
             </div>
         </div>
     </nav>
+
+    <!-- Top Advertisement Banner (FREE users only) -->
+    <div class="ad-banner ad-banner-top" id="topAdBanner">
+        <div class="ad-placeholder">
+            <div class="icon">📢</div>
+            <div><strong>Advertisement Space</strong></div>
+            <div>728x90 Banner / Google AdSense</div>
+            <div class="ad-disclaimer">This ad helps keep BrainBrawler free for everyone</div>
+        </div>
+    </div>
+
+    <!-- Premium Notice (PREMIUM users only) -->
+    <div class="premium-notice" id="premiumNotice">
+        ⭐ You're enjoying an ad-free experience with BrainBrawler Premium!
+    </div>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -457,6 +549,19 @@
                     </li>
                 </ul>
 
+                <!-- Native Advertisement (Google AdMob) -->
+                <div class="ad-banner ad-banner-sidebar ad-banner-native" id="nativeAdBanner">
+                    <div class="ad-placeholder">
+                        <div class="icon">📱</div>
+                        <div><strong>Native Advertisement</strong></div>
+                        <div>Google AdMob Native Ad</div>
+                        <div style="margin: 10px 0; font-size: 0.8rem;">
+                            Interactive content that matches your interests
+                        </div>
+                        <div class="ad-disclaimer">Sponsored Content • Ad</div>
+                    </div>
+                </div>
+
                 <div class="pricing-card">
                     <h3>🚀 Upgrade to Premium</h3>
                     <div class="pricing-price">
@@ -486,11 +591,15 @@
                                 <div class="feature-icon premium">⭐</div>
                                 <span>Priority support</span>
                             </li>
+                            <li>
+                                <div class="feature-icon premium">⭐</div>
+                                <span><strong>Remove all advertisements</strong></span>
+                            </li>
                         </ul>
                     </div>
 
                     <button class="btn btn-warning" onclick="upgradeToPremium()">
-                        💳 Upgrade Now
+                        💳 Upgrade Now - No More Ads!
                     </button>
                 </div>
             </div>
@@ -530,6 +639,7 @@
             await loadUser();
             loadRooms();
             startRoomsPolling();
+            initializeAdvertisements();
         });
 
         // Load user data
@@ -585,14 +695,91 @@
             accountBadge.textContent = currentUser.accountType;
             accountBadge.className = `account-badge badge-${currentUser.accountType.toLowerCase()}`;
             
-            // Show appropriate account section
+            // Show appropriate account section and advertisements
             if (currentUser.accountType === 'PREMIUM' || currentUser.accountType === 'ADMIN') {
+                // Premium users: No ads, show premium content
                 document.getElementById('freeAccountContent').style.display = 'none';
                 document.getElementById('premiumAccountContent').style.display = 'block';
+                hideAdvertisements();
+                showPremiumNotice();
             } else {
+                // Free users: Show ads and free content
                 document.getElementById('freeAccountContent').style.display = 'block';
                 document.getElementById('premiumAccountContent').style.display = 'none';
+                showAdvertisements();
+                hidePremiumNotice();
             }
+        }
+
+        // Advertisement management functions
+        function showAdvertisements() {
+            // Show all ad banners for FREE users
+            const adElements = ['topAdBanner', 'nativeAdBanner'];
+            adElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.classList.add('show');
+                }
+            });
+            
+            console.log('📢 Advertisements loaded for FREE user');
+            
+            // Here you would initialize actual AdMob/AdSense code
+            // Example:
+            // initializeGoogleAds();
+            // loadAdMobNative();
+        }
+
+        function hideAdvertisements() {
+            // Hide all ad banners for PREMIUM users
+            const adElements = ['topAdBanner', 'nativeAdBanner'];
+            adElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.classList.remove('show');
+                }
+            });
+            
+            console.log('⭐ Ad-free experience active for PREMIUM user');
+        }
+
+        function showPremiumNotice() {
+            const element = document.getElementById('premiumNotice');
+            if (element) {
+                element.classList.add('show');
+            }
+        }
+
+        function hidePremiumNotice() {
+            const element = document.getElementById('premiumNotice');
+            if (element) {
+                element.classList.remove('show');
+            }
+        }
+
+        // Initialize AdMob/AdSense (placeholder function)
+        function initializeAdvertisements() {
+            // This function would contain actual AdMob initialization
+            // For Google AdSense:
+            /*
+            (adsbygoogle = window.adsbygoogle || []).push({
+                google_ad_client: "ca-pub-XXXXXXXXXX",
+                enable_page_level_ads: true
+            });
+            */
+            
+            // For AdMob Native:
+            /*
+            if (window.admob) {
+                admob.createBanner({
+                    adId: 'your-admob-banner-id',
+                    position: admob.POSITION.TOP_BANNER,
+                    autoShow: true
+                });
+            }
+            */
+            
+            console.log('📱 Advertisement SDK initialized (placeholder)');
         }
 
         // Load available rooms
