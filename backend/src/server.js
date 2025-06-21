@@ -20,7 +20,21 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN || "http://localhost:8080",
+    origin: (origin, callback) => {
+      // Allow multiple origins for development
+      const allowedOrigins = [
+        'http://10.40.10.180:3001',
+        'http://127.0.0.1:3001',
+        'http://localhost:3001'
+      ];
+      
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log('CORS blocked origin:', origin);
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -34,7 +48,21 @@ const gameEngine = new GameEngine(io, prisma);
 app.use(helmet());
 app.use(compression());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || "http://localhost:8080",
+  origin: (origin, callback) => {
+    // Allow multiple origins for development
+    const allowedOrigins = [
+      'http://10.40.10.180:3001',
+      'http://127.0.0.1:3001', 
+      'http://localhost:3001'
+    ];
+    
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));

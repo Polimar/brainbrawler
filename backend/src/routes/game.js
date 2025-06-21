@@ -488,4 +488,253 @@ router.get('/stats', async (req, res) => {
   }
 });
 
+// Get available rooms
+router.get('/rooms', authenticateToken, async (req, res) => {
+  try {
+    const rooms = await prisma.game.findMany({
+      where: {
+        status: 'WAITING',
+        currentPlayers: {
+          lt: prisma.raw('max_players')
+        }
+      },
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        questionTime: true,
+        totalQuestions: true,
+        currentPlayers: true,
+        maxPlayers: true,
+        isPrivate: true,
+        createdAt: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    res.json({ rooms });
+  } catch (error) {
+    console.error('Get rooms error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Quick match - join or create a room
+router.post('/quick-match', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Try to find an available room
+    let availableRoom = await prisma.game.findFirst({
+      where: {
+        status: 'WAITING',
+        isPrivate: false,
+        currentPlayers: {
+          lt: prisma.raw('max_players')
+        }
+      },
+      orderBy: {
+        currentPlayers: 'desc' // Prefer rooms with more players
+      }
+    });
+
+    if (availableRoom) {
+      // Join existing room
+      try {
+        const updatedRoom = await prisma.game.update({
+          where: { id: availableRoom.id },
+          data: {
+            currentPlayers: {
+              increment: 1
+            }
+          }
+        });
+
+        // TODO: Add user to room participants
+        
+        res.json({
+          message: 'Joined existing room',
+          roomId: availableRoom.id
+        });
+      } catch (error) {
+        // Room might be full, try to create new one
+        availableRoom = null;
+      }
+    }
+
+    if (!availableRoom) {
+      // Create new room
+      const newRoom = await prisma.game.create({
+        data: {
+          name: `Quick Match Room`,
+          category: 'General',
+          questionTime: 30,
+          totalQuestions: 10,
+          maxPlayers: 4,
+          currentPlayers: 1,
+          status: 'WAITING',
+          isPrivate: false,
+          createdBy: userId
+        }
+      });
+
+      res.json({
+        message: 'Created new room',
+        roomId: newRoom.id
+      });
+    }
+  } catch (error) {
+    console.error('Quick match error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Join specific room
+router.post('/join-room', authenticateToken, async (req, res) => {
+  try {
+    const { roomId } = req.body;
+    const userId = req.user.id;
+
+    if (!roomId) {
+      return res.status(400).json({ error: 'Room ID is required' });
+    }
+
+    const room = await prisma.game.findUnique({
+      where: { id: roomId }
+    });
+
+    if (!room) {
+      return res.status(404).json({ error: 'Room not found' });
+    }
+
+    if (room.status !== 'WAITING') {
+      return res.status(400).json({ error: 'Room is not accepting new players' });
+    }
+
+    if (room.currentPlayers >= room.maxPlayers) {
+      return res.status(400).json({ error: 'Room is full' });
+    }
+
+    // Update room player count
+    const updatedRoom = await prisma.game.update({
+      where: { id: roomId },
+      data: {
+        currentPlayers: {
+          increment: 1
+        }
+      }
+    });
+
+    // TODO: Add user to room participants
+
+    res.json({
+      message: 'Joined room successfully',
+      room: updatedRoom
+    });
+  } catch (error) {
+    console.error('Join room error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Create custom room (Premium only)
+router.post('/create-room', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { 
+      name, 
+      category, 
+      questionTime, 
+      totalQuestions, 
+      maxPlayers, 
+      isPrivate, 
+      password 
+    } = req.body;
+
+    // Check if user has premium access
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { accountType: true }
+    });
+
+    if (!user || (user.accountType !== 'PREMIUM' && user.accountType !== 'ADMIN')) {
+      return res.status(403).json({ 
+        error: 'Premium account required to create custom rooms',
+        upgradeRequired: true 
+      });
+    }
+
+    // Validate input
+    if (!name || !category) {
+      return res.status(400).json({ error: 'Room name and category are required' });
+    }
+
+    if (questionTime < 10 || questionTime > 120) {
+      return res.status(400).json({ error: 'Question time must be between 10 and 120 seconds' });
+    }
+
+    if (totalQuestions < 5 || totalQuestions > 50) {
+      return res.status(400).json({ error: 'Total questions must be between 5 and 50' });
+    }
+
+    if (maxPlayers < 2 || maxPlayers > 8) {
+      return res.status(400).json({ error: 'Max players must be between 2 and 8' });
+    }
+
+    const newRoom = await prisma.game.create({
+      data: {
+        name: name.trim(),
+        category,
+        questionTime: parseInt(questionTime),
+        totalQuestions: parseInt(totalQuestions),
+        maxPlayers: parseInt(maxPlayers),
+        currentPlayers: 1,
+        status: 'WAITING',
+        isPrivate: Boolean(isPrivate),
+        password: password ? password.trim() : null,
+        createdBy: userId
+      }
+    });
+
+    res.status(201).json({
+      message: 'Room created successfully',
+      room: newRoom
+    });
+  } catch (error) {
+    console.error('Create room error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get room details
+router.get('/room/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const room = await prisma.game.findUnique({
+      where: { id },
+      include: {
+        creator: {
+          select: {
+            id: true,
+            displayName: true,
+            avatar: true
+          }
+        }
+      }
+    });
+
+    if (!room) {
+      return res.status(404).json({ error: 'Room not found' });
+    }
+
+    res.json({ room });
+  } catch (error) {
+    console.error('Get room error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router; 

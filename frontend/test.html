@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 BrainBrawler - Quiz Multiplayer</title>
+    
+    <!-- Google Sign-In API -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Socket.io -->
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .auth-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .auth-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            min-width: 350px;
+            transition: transform 0.3s ease;
+        }
+
+        .auth-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .auth-card.hidden {
+            display: none;
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            padding: 4px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .auth-tab.active {
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            color: #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-google {
+            background: white;
+            color: #333;
+            border: 2px solid #e1e5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .btn-google:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #999;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e1e5e9;
+            z-index: 1;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .status {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .status h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+        }
+
+        .connected { color: #28a745; font-weight: 600; }
+        .disconnected { color: #dc3545; font-weight: 600; }
+        .waiting { color: #ffc107; font-weight: 600; }
+
+        .game-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .card h3 {
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .card input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .card button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .card button:disabled {
+            background: #e1e5e9;
+            color: #999;
+            cursor: not-allowed;
+        }
+
+        .card button:not(:disabled):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .user-info {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .user-details h4 {
+            margin-bottom: 5px;
+        }
+
+        .user-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .log-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-container h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .log-item {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border-left: 4px solid #e1e5e9;
+        }
+
+        .log-item.success {
+            background: #d4edda;
+            border-left-color: #28a745;
+            color: #155724;
+        }
+
+        .log-item.error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            color: #721c24;
+        }
+
+        .log-item.info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+            color: #0c5460;
+        }
+
+        .google-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .auth-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .auth-card {
+                min-width: 300px;
+                width: 100%;
+                max-width: 400px;
+            }
+
+            .game-controls {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 BrainBrawler</h1>
+            <p>Quiz Multiplayer con Architettura Kafka</p>
+        </div>
+        
+        <!-- Sezione Autenticazione -->
+        <div id="authSection" class="auth-container">
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" onclick="switchTab('login')">Accedi</button>
+                    <button class="auth-tab" onclick="switchTab('register')">Registrati</button>
+                </div>
+
+                <!-- Form Login -->
+                <div id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="tua@email.com" value="test@brainbrawler.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" placeholder="Password" value="test123">
+                    </div>
+                    <button class="btn btn-primary" onclick="login()">🔑 Accedi</button>
+                    
+                    <div class="divider">
+                        <span>oppure</span>
+                    </div>
+                    
+                    <div id="g_id_onload"
+                         data-client_id=""
+                         data-callback="handleGoogleSignIn"
+                         data-auto_prompt="false">
+                    </div>
+                    <div id="googleSignInButton"></div>
+                </div>
+
+                <!-- Form Registrazione -->
+                <div id="registerForm" class="hidden">
+                    <div class="form-group">
+                        <label for="regUsername">Username</label>
+                        <input type="text" id="regUsername" placeholder="username" value="newuser">
+                    </div>
+                    <div class="form-group">
+                        <label for="regEmail">Email</label>
+                        <input type="email" id="regEmail" placeholder="tua@email.com" value="nuovo@test.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="regDisplayName">Nome Visualizzato</label>
+                        <input type="text" id="regDisplayName" placeholder="Il tuo nome" value="Nuovo Utente">
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <input type="password" id="regPassword" placeholder="Almeno 6 caratteri" value="test123">
+                    </div>
+                    <button class="btn btn-primary" onclick="register()">📝 Registrati</button>
+                    
+                    <div class="divider">
+                        <span>oppure</span>
+                    </div>
+                    
+                    <button class="btn btn-google" onclick="googleSignIn()">
+                        <svg class="google-icon" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                        Continua con Google
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sezione Gioco (nascosta inizialmente) -->
+        <div id="gameSection" class="hidden">
+            <!-- Info Utente -->
+            <div id="userInfo" class="user-info">
+                <div class="user-avatar" id="userAvatar">👤</div>
+                <div class="user-details">
+                    <h4 id="userName">Guest</h4>
+                    <div class="user-stats">
+                        <span>Level: <span id="userLevel">1</span></span>
+                        <span>XP: <span id="userXP">0</span></span>
+                        <span>Vittorie: <span id="userWins">0</span></span>
+                    </div>
+                </div>
+                <button class="btn" onclick="logout()" style="margin-left: auto; background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3);">🚪 Logout</button>
+            </div>
+            
+            <!-- Status Sistema -->
+            <div class="status">
+                <h3>📊 Status del Sistema</h3>
+                <div class="status-item">
+                    <span>🔌 Connessione Socket.io:</span>
+                    <span id="connectionStatus" class="disconnected">Disconnesso</span>
+                </div>
+                <div class="status-item">
+                    <span>🎮 Stato Gioco:</span>
+                    <span id="gameStatus" class="waiting">In attesa</span>
+                </div>
+            </div>
+            
+            <!-- Controlli Gioco -->
+            <div class="game-controls">
+                <div class="card">
+                    <h3>🏠 Gestione Stanze</h3>
+                    <input type="text" id="roomCode" placeholder="Codice Stanza (es: ABC123)">
+                    <button onclick="createRoom()" id="createRoomBtn">🆕 Crea Stanza</button>
+                    <button onclick="joinRoom()" id="joinRoomBtn">🚪 Entra in Stanza</button>
+                    <button onclick="startGame()" id="startGameBtn" disabled>🎮 Inizia Partita</button>
+                </div>
+                
+                <div class="card">
+                    <h3>⚙️ Impostazioni</h3>
+                    <input type="number" id="questionCount" placeholder="Numero domande" value="5" min="1" max="20">
+                    <input type="number" id="timePerQuestion" placeholder="Secondi per domanda" value="15" min="5" max="60">
+                    <button onclick="updateSettings()">💾 Salva Impostazioni</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Log Sistema -->
+        <div class="log-container">
+            <h3>📝 Log Sistema</h3>
+            <div id="logContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configurazione
+        const API_BASE = `http://${window.location.hostname}:3000`;
+        
+        let socket = null;
+        let currentToken = null;
+        let currentUser = null;
+        let googleClientId = null;
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', async () => {
+            log('🚀 Inizializzazione app...', 'info');
+            
+            // Carica configurazione Google
+            await loadGoogleConfig();
+            
+            // Controlla se è già loggato
+            const token = localStorage.getItem('brainbrawler_token');
+            if (token) {
+                currentToken = token;
+                await verifyToken();
+            }
+        });
+
+        // Carica configurazione Google OAuth
+        async function loadGoogleConfig() {
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/google/config`);
+                const config = await response.json();
+                
+                if (config.configured && config.clientId) {
+                    googleClientId = config.clientId;
+                    
+                    // Configura Google Sign-In
+                    document.getElementById('g_id_onload').setAttribute('data-client_id', googleClientId);
+                    
+                    // Renderizza pulsante Google
+                    google.accounts.id.initialize({
+                        client_id: googleClientId,
+                        callback: handleGoogleSignIn
+                    });
+                    
+                    google.accounts.id.renderButton(
+                        document.getElementById('googleSignInButton'),
+                        { 
+                            theme: 'outline', 
+                            size: 'large', 
+                            width: 280,
+                            text: 'continue_with'
+                        }
+                    );
+                    
+                    log('✅ Google OAuth configurato', 'success');
+                } else {
+                    log('⚠️ Google OAuth non configurato', 'info');
+                    document.getElementById('googleSignInButton').innerHTML = 
+                        '<p style="color: #999; text-align: center; padding: 15px;">Google OAuth non configurato</p>';
+                }
+            } catch (error) {
+                log(`❌ Errore caricamento Google config: ${error.message}`, 'error');
+            }
+        }
+
+        // Switch tra tab login/register
+        function switchTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector(`.auth-tab:nth-child(${tab === 'login' ? '1' : '2'})`).classList.add('active');
+            
+            if (tab === 'login') {
+                document.getElementById('loginForm').classList.remove('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+            } else {
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.remove('hidden');
+            }
+        }
+
+        // Gestione login Google
+        async function handleGoogleSignIn(response) {
+            try {
+                log('🔄 Elaborazione login Google...', 'info');
+                
+                const result = await fetch(`${API_BASE}/api/auth/google`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ idToken: response.credential })
+                });
+                
+                const data = await result.json();
+                
+                if (result.ok) {
+                    log(`✅ Login Google completato: ${data.user.displayName}`, 'success');
+                    currentToken = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('brainbrawler_token', currentToken);
+                    showGameSection();
+                    connectSocket();
+                } else {
+                    log(`❌ Errore login Google: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Errore di rete Google: ${error.message}`, 'error');
+            }
+        }
+
+        // Registrazione
+        async function register() {
+            const username = document.getElementById('regUsername').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const displayName = document.getElementById('regDisplayName').value.trim();
+            const password = document.getElementById('regPassword').value;
+            
+            if (!username || !email || !displayName || !password) {
+                log('❌ Compila tutti i campi', 'error');
+                return;
+            }
+            
+            try {
+                log('🔄 Registrazione in corso...', 'info');
+                
+                const response = await fetch(`${API_BASE}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, displayName, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Registrazione completata: ${data.user.displayName}`, 'success');
+                    currentToken = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('brainbrawler_token', currentToken);
+                    showGameSection();
+                    connectSocket();
+                } else {
+                    log(`❌ Errore registrazione: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Errore di rete: ${error.message}`, 'error');
+            }
+        }
+        
+        // Login
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                log('❌ Email e password richiesti', 'error');
+                return;
+            }
+            
+            try {
+                log('🔄 Login in corso...', 'info');
+                
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    log(`✅ Login completato: ${data.user.displayName}`, 'success');
+                    currentToken = data.token;
+                    currentUser = data.user;
+                    localStorage.setItem('brainbrawler_token', currentToken);
+                    showGameSection();
+                    connectSocket();
+                } else {
+                    log(`❌ Errore login: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Errore di rete: ${error.message}`, 'error');
+            }
+        }
+
+        // Verifica token esistente
+        async function verifyToken() {
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/verify`, {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser = data.user;
+                    showGameSection();
+                    connectSocket();
+                    log(`✅ Sessione ripristinata: ${currentUser.displayName}`, 'success');
+                } else {
+                    localStorage.removeItem('brainbrawler_token');
+                    currentToken = null;
+                    log('ℹ️ Token scaduto, effettua il login', 'info');
+                }
+            } catch (error) {
+                log(`❌ Errore verifica token: ${error.message}`, 'error');
+            }
+        }
+
+        // Logout
+        function logout() {
+            localStorage.removeItem('brainbrawler_token');
+            currentToken = null;
+            currentUser = null;
+            
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+            }
+            
+            document.getElementById('authSection').classList.remove('hidden');
+            document.getElementById('gameSection').classList.add('hidden');
+            document.getElementById('connectionStatus').textContent = 'Disconnesso';
+            document.getElementById('connectionStatus').className = 'disconnected';
+            
+            log('👋 Logout effettuato', 'info');
+        }
+
+        // Mostra sezione gioco
+        function showGameSection() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('gameSection').classList.remove('hidden');
+            
+            // Aggiorna info utente
+            document.getElementById('userName').textContent = currentUser.displayName;
+            document.getElementById('userLevel').textContent = currentUser.level;
+            document.getElementById('userXP').textContent = currentUser.xp;
+            document.getElementById('userWins').textContent = currentUser.totalWins;
+            
+            if (currentUser.avatar) {
+                document.getElementById('userAvatar').innerHTML = `<img src="${currentUser.avatar}" style="width: 100%; height: 100%; border-radius: 50%;">`;
+            } else {
+                document.getElementById('userAvatar').textContent = currentUser.displayName.charAt(0).toUpperCase();
+            }
+        }
+
+        // Connessione Socket.io
+        function connectSocket() {
+            if (!currentToken) return;
+            
+            log('🔄 Connessione Socket.io...', 'info');
+            
+            socket = io(API_BASE, {
+                auth: { token: currentToken },
+                transports: ['websocket', 'polling']
+            });
+            
+            socket.on('connect', () => {
+                log('✅ Socket.io connesso', 'success');
+                document.getElementById('connectionStatus').textContent = 'Connesso';
+                document.getElementById('connectionStatus').className = 'connected';
+            });
+            
+            socket.on('disconnect', () => {
+                log('⚠️ Socket.io disconnesso', 'error');
+                document.getElementById('connectionStatus').textContent = 'Disconnesso';
+                document.getElementById('connectionStatus').className = 'disconnected';
+            });
+            
+            socket.on('connect_error', (error) => {
+                log(`❌ Errore connessione: ${error.message}`, 'error');
+            });
+            
+            // Eventi gioco
+            socket.on('room-created', (data) => {
+                log(`🏠 Stanza creata: ${data.roomCode}`, 'success');
+                document.getElementById('roomCode').value = data.roomCode;
+                document.getElementById('gameStatus').textContent = `Host stanza ${data.roomCode}`;
+                document.getElementById('startGameBtn').disabled = false;
+            });
+            
+            socket.on('player-joined', (data) => {
+                log(`👤 Giocatore entrato: ${data.player?.displayName || 'Unknown'}`, 'info');
+            });
+            
+            socket.on('game-started', (data) => {
+                log('🎮 Partita iniziata!', 'success');
+                document.getElementById('gameStatus').textContent = 'Partita in corso';
+            });
+            
+            socket.on('error', (data) => {
+                log(`❌ Errore gioco: ${data.message}`, 'error');
+            });
+        }
+
+        // Crea stanza
+        function createRoom() {
+            if (!socket) {
+                log('❌ Socket non connesso', 'error');
+                return;
+            }
+            
+            const questionCount = document.getElementById('questionCount').value || 5;
+            
+            socket.emit('create-room', { 
+                questionSetId: 'default',
+                questionCount: parseInt(questionCount)
+            });
+            
+            log('🔄 Creazione stanza...', 'info');
+        }
+
+        // Entra in stanza
+        function joinRoom() {
+            if (!socket) {
+                log('❌ Socket non connesso', 'error');
+                return;
+            }
+            
+            const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
+            if (!roomCode) {
+                log('❌ Inserisci codice stanza', 'error');
+                return;
+            }
+            
+            socket.emit('join-room', { roomCode });
+            log(`🔄 Entrando nella stanza ${roomCode}...`, 'info');
+        }
+
+        // Inizia partita
+        function startGame() {
+            if (!socket) {
+                log('❌ Socket non connesso', 'error');
+                return;
+            }
+            
+            const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
+            if (!roomCode) {
+                log('❌ Nessuna stanza attiva', 'error');
+                return;
+            }
+            
+            socket.emit('start-game', { roomCode });
+            log('🎮 Avvio partita...', 'info');
+        }
+
+        // Aggiorna impostazioni
+        function updateSettings() {
+            const questionCount = document.getElementById('questionCount').value;
+            const timePerQuestion = document.getElementById('timePerQuestion').value;
+            
+            log(`⚙️ Impostazioni: ${questionCount} domande, ${timePerQuestion}s/domanda`, 'info');
+        }
+
+        // Sistema di log
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const logItem = document.createElement('div');
+            logItem.className = `log-item ${type}`;
+            logItem.innerHTML = `<span style="opacity: 0.7;">[${new Date().toLocaleTimeString()}]</span> ${message}`;
+            
+            logContainer.appendChild(logItem);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Mantieni solo gli ultimi 50 log
+            while (logContainer.children.length > 50) {
+                logContainer.removeChild(logContainer.firstChild);
+            }
+        }
+    </script>
+</body>
+</html> 

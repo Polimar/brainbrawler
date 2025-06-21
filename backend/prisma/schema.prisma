@@ -21,6 +21,10 @@ model User {
   googleId        String?   @unique
   avatar          String?
   passwordHash    String?
+  emailVerified   Boolean   @default(false)
+  emailVerificationCode String?
+  emailVerificationExpires DateTime?
+  accountType     AccountType @default(FREE)
   totalGamesPlayed Int      @default(0)
   totalWins       Int       @default(0)
   totalScore      Int       @default(0)
@@ -31,6 +35,7 @@ model User {
   updatedAt       DateTime  @updatedAt
   
   gameResults     GameResult[]
+  createdGames    Game[]    @relation("GameCreator")
   achievements    UserAchievement[]
   friendships     Friendship[] @relation("FriendshipFrom")
   friendsOf       Friendship[] @relation("FriendshipTo")
@@ -41,14 +46,14 @@ model User {
 model Category {
   id          String     @id @default(cuid())
   name        String     @unique
-  icon        String
-  color       String
   description String?
+  icon        String?
+  color       String?
   isActive    Boolean    @default(true)
   createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
   
   questions   Question[]
-  questionSets QuestionSet[]
   
   @@map("categories")
 }
@@ -74,19 +79,15 @@ model Question {
 }
 
 model QuestionSet {
-  id          String    @id @default(cuid())
+  id          String              @id @default(cuid())
   name        String
   description String?
-  categoryId  String
-  category    Category  @relation(fields: [categoryId], references: [id])
-  difficulty  Difficulty
-  isPublic    Boolean   @default(true)
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  isPublic    Boolean             @default(true)
+  createdBy   String              @default("system")
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
   
   questions   QuestionSetItem[]
-  games       Game[]
   
   @@map("question_sets")
 }
@@ -105,21 +106,23 @@ model QuestionSetItem {
 }
 
 model Game {
-  id              String       @id @default(cuid())
-  roomCode        String       @unique @db.VarChar(6)
-  questionSetId   String
-  questionSet     QuestionSet  @relation(fields: [questionSetId], references: [id])
-  status          GameStatus   @default(LOBBY)
-  currentQuestion Int          @default(0)
-  maxPlayers      Int          @default(8)
-  timePerQuestion Int          @default(15)
-  hostUserId      String
-  startedAt       DateTime?
-  endedAt         DateTime?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id              String        @id @default(cuid())
+  name            String?
+  category        String        @default("General")
+  questionTime    Int           @default(30)
+  totalQuestions  Int           @default(10)
+  currentQuestion Int           @default(0)
+  status          GameStatus    @default(WAITING)
+  maxPlayers      Int           @default(4)
+  currentPlayers  Int           @default(0)
+  isPrivate       Boolean       @default(false)
+  password        String?
+  createdBy       String
+  creator         User          @relation("GameCreator", fields: [createdBy], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
   
-  results         GameResult[]
+  gameResults     GameResult[]
   
   @@map("games")
 }
@@ -184,9 +187,10 @@ model Friendship {
 }
 
 enum GameStatus {
+  WAITING
   LOBBY
-  STARTING
-  IN_PROGRESS
+  ACTIVE
+  PAUSED
   FINISHED
   CANCELLED
 }
@@ -202,4 +206,10 @@ enum FriendshipStatus {
   ACCEPTED
   DECLINED
   BLOCKED
+}
+
+enum AccountType {
+  FREE
+  PREMIUM
+  ADMIN
 }

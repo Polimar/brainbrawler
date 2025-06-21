@@ -1,14 +1,22 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
 const { PrismaClient } = require('@prisma/client');
 const { generateToken, authenticateToken } = require('../middleware/auth');
+const emailService = require('../services/emailService');
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
 // Google OAuth client
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+let googleClient = null;
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  googleClient = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET
+  );
+}
 
 // Registrazione
 router.post('/register', async (req, res) => {
@@ -55,6 +63,10 @@ router.post('/register', async (req, res) => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
+    // Generate email verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
     // Crea utente
     const user = await prisma.user.create({
       data: {
@@ -62,6 +74,82 @@ router.post('/register', async (req, res) => {
         username: username.toLowerCase(),
         displayName,
         passwordHash,
+        emailVerificationCode: verificationCode,
+        emailVerificationExpires: verificationExpires,
+        emailVerified: false
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        displayName: true,
+        avatar: true,
+        level: true,
+        xp: true,
+        totalGamesPlayed: true,
+        totalWins: true,
+        totalScore: true,
+        emailVerified: true,
+        accountType: true,
+        createdAt: true
+      }
+    });
+
+    // Send verification email
+    const emailResult = await emailService.sendVerificationEmail(
+      email, 
+      verificationCode, 
+      displayName
+    );
+
+    res.status(201).json({
+      message: 'User created successfully. Please check your email for verification code.',
+      user,
+      verificationRequired: true,
+      emailStatus: emailResult
+    });
+  } catch (error) {
+    console.error('Register error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Verify email
+router.post('/verify-email', async (req, res) => {
+  try {
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+      return res.status(400).json({ error: 'Email and verification code are required' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ error: 'Email is already verified' });
+    }
+
+    if (!user.emailVerificationCode || user.emailVerificationCode !== code) {
+      return res.status(400).json({ error: 'Invalid verification code' });
+    }
+
+    if (user.emailVerificationExpires && user.emailVerificationExpires < new Date()) {
+      return res.status(400).json({ error: 'Verification code has expired' });
+    }
+
+    // Verify email
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        emailVerificationCode: null,
+        emailVerificationExpires: null,
         lastLoginAt: new Date()
       },
       select: {
@@ -75,20 +163,79 @@ router.post('/register', async (req, res) => {
         totalGamesPlayed: true,
         totalWins: true,
         totalScore: true,
+        emailVerified: true,
+        accountType: true,
         createdAt: true
       }
     });
 
-    // Genera token
-    const token = generateToken(user.id);
+    // Generate token
+    const token = generateToken(updatedUser.id);
 
-    res.status(201).json({
-      message: 'User created successfully',
-      user,
+    // Send welcome email
+    await emailService.sendWelcomeEmail(
+      updatedUser.email,
+      updatedUser.displayName,
+      updatedUser.accountType
+    );
+
+    res.json({
+      message: 'Email verified successfully',
+      user: updatedUser,
       token
     });
   } catch (error) {
-    console.error('Register error:', error);
+    console.error('Email verification error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Resend verification code
+router.post('/resend-verification', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({ error: 'Email is already verified' });
+    }
+
+    // Generate new verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerificationCode: verificationCode,
+        emailVerificationExpires: verificationExpires
+      }
+    });
+
+    // Send verification email
+    const emailResult = await emailService.sendVerificationEmail(
+      email, 
+      verificationCode, 
+      user.displayName
+    );
+
+    res.json({
+      message: 'Verification code sent successfully',
+      emailStatus: emailResult
+    });
+  } catch (error) {
+    console.error('Resend verification error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -102,33 +249,28 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    // Trova utente (case insensitive)
+    // Trova utente per email
     const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase() },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        displayName: true,
-        avatar: true,
-        level: true,
-        xp: true,
-        totalGamesPlayed: true,
-        totalWins: true,
-        totalScore: true,
-        passwordHash: true,
-        createdAt: true
-      }
+      where: { email: email.toLowerCase() }
     });
 
     if (!user || !user.passwordHash) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: 'Invalid email or password' });
     }
 
     // Verifica password
     const isValid = await bcrypt.compare(password, user.passwordHash);
     if (!isValid) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    // Check email verification
+    if (!user.emailVerified) {
+      return res.status(403).json({ 
+        error: 'Email not verified. Please check your email for verification code.',
+        emailVerified: false,
+        email: user.email
+      });
     }
 
     // Aggiorna ultimo login
@@ -137,15 +279,26 @@ router.post('/login', async (req, res) => {
       data: { lastLoginAt: new Date() }
     });
 
-    // Rimuovi password hash dalla risposta
-    const { passwordHash, ...userWithoutPassword } = user;
-
     // Genera token
     const token = generateToken(user.id);
 
     res.json({
       message: 'Login successful',
-      user: userWithoutPassword,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        displayName: user.displayName,
+        avatar: user.avatar,
+        level: user.level,
+        xp: user.xp,
+        totalGamesPlayed: user.totalGamesPlayed,
+        totalWins: user.totalWins,
+        totalScore: user.totalScore,
+        emailVerified: user.emailVerified,
+        accountType: user.accountType,
+        createdAt: user.createdAt
+      },
       token
     });
   } catch (error) {
@@ -415,6 +568,75 @@ router.get('/verify', authenticateToken, (req, res) => {
 // Logout (principalmente per pulizia lato client)
 router.post('/logout', authenticateToken, (req, res) => {
   res.json({ message: 'Logged out successfully' });
+});
+
+// Endpoint per controlli di disponibilità live
+router.post('/check-availability', async (req, res) => {
+  try {
+    const { field, value } = req.body;
+
+    if (!field || !value) {
+      return res.status(400).json({ error: 'Field and value are required' });
+    }
+
+    // Normalize value
+    const normalizedValue = field === 'email' ? value.toLowerCase() : value.trim();
+
+    let available = true;
+
+    switch (field) {
+      case 'username':
+        // Check username format
+        if (!/^[a-zA-Z0-9_]{3,20}$/.test(normalizedValue)) {
+          available = false;
+          break;
+        }
+        
+        const existingUsername = await prisma.user.findUnique({
+          where: { username: normalizedValue.toLowerCase() }
+        });
+        available = !existingUsername;
+        break;
+
+      case 'email':
+        // Check email format
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedValue)) {
+          available = false;
+          break;
+        }
+        
+        const existingEmail = await prisma.user.findUnique({
+          where: { email: normalizedValue }
+        });
+        available = !existingEmail;
+        break;
+
+      case 'displayName':
+        // Check length
+        if (normalizedValue.length < 2 || normalizedValue.length > 50) {
+          available = false;
+          break;
+        }
+        
+        // Display name can be duplicated, so it's always available if format is correct
+        available = true;
+        break;
+
+      default:
+        return res.status(400).json({ error: 'Invalid field' });
+    }
+
+    res.json({ available });
+  } catch (error) {
+    console.error('Check availability error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// Get email service status
+router.get('/email-status', (req, res) => {
+  const status = emailService.getStatus();
+  res.json(status);
 });
 
 module.exports = router; 

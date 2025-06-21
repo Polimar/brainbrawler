@@ -1,5 +1,33 @@
-version: '3.8'
+
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: bb_postgres
+    environment:
+      POSTGRES_DB: brainbrawler
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: brainbrawler_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - brainbrawler
+    restart: unless-stopped
+
+  # Redis per cache e sessioni
+  redis:
+    image: redis:7-alpine
+    container_name: bb_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - brainbrawler
+    restart: unless-stopped
+
   # Zookeeper per Kafka
   zookeeper:
     image: confluentinc/cp-zookeeper:7.4.0
@@ -11,6 +39,7 @@ services:
       - "2181:2181"
     networks:
       - brainbrawler
+    restart: unless-stopped
 
   # Kafka Broker
   kafka:
@@ -24,105 +53,50 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://10.40.10.180:29092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
-    networks:
-      - brainbrawler
-
-  # Redis per cache e sessioni
-  redis:
-    image: redis:7-alpine
-    container_name: bb_redis
-    ports:
-      - "6379:6379"
-    command: redis-server --appendonly yes
+      KAFKA_CREATE_TOPICS: "game-events:1:1,user-actions:1:1"
     volumes:
-      - redis_data:/data
+      - kafka_data:/var/lib/kafka/data
     networks:
       - brainbrawler
-
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15
-    container_name: bb_postgres
-    environment:
-      POSTGRES_DB: brainbrawler
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: dev_password_123
-      POSTGRES_HOST_AUTH_METHOD: trust
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - brainbrawler
-
-  # Adminer per gestione DB
-  adminer:
-    image: adminer
-    container_name: bb_adminer
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-    networks:
-      - brainbrawler
-
-  # Kafka UI per monitoraggio
-  kafka-ui:
-    image: provectuslabs/kafka-ui:latest
-    container_name: bb_kafka_ui
-    ports:
-      - "8090:8080"
-    environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-    depends_on:
-      - kafka
-    networks:
-      - brainbrawler
+    restart: unless-stopped
 
   # Backend API
   backend:
     build: 
       context: ./backend
-      dockerfile: Dockerfile
     container_name: bb_backend
     ports:
       - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      - DATABASE_URL=postgresql://postgres:brainbrawler_dev@postgres:5432/brainbrawler
+      - JWT_SECRET=your-super-secret-jwt-key-change-in-production
+      - REDIS_URL=redis://redis:6379
+      - KAFKA_BROKERS=kafka:9092
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - SMTP_HOST=10.40.19.34
+      - SMTP_PORT=25
+      - SMTP_FROM_EMAIL=noreply@brainbrawler.com
+      - FRONTEND_URL=http://10.40.10.180:3001
     depends_on:
       - postgres
       - redis
       - kafka
-    environment:
-      DATABASE_URL: "postgresql://postgres:dev_password_123@postgres:5432/brainbrawler"
-      REDIS_URL: "redis://redis:6379"
-      KAFKA_BROKERS: "kafka:9092"
-      KAFKA_CLIENT_ID: "brainbrawler-game-service"
-      JWT_SECRET: "brainbrawler-super-secret-jwt-key-for-dev-only-123456789"
-      JWT_EXPIRES_IN: "7d"
-      GOOGLE_CLIENT_ID: "your-google-client-id"
-      GOOGLE_CLIENT_SECRET: "your-google-client-secret"
-      PORT: 3000
-      HOST: "0.0.0.0"
-      NODE_ENV: "development"
-      CORS_ORIGIN: "*"
-      QUESTIONS_PER_GAME: 10
-      TIME_PER_QUESTION: 15
-      MAX_PLAYERS_PER_ROOM: 8
-      ROOM_CODE_LENGTH: 6
     volumes:
       - ./backend:/app
       - /app/node_modules
-      - /app/prisma/migrations
+    command: npm run dev
     networks:
       - brainbrawler
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      test: ["CMD", "curl", "-f", "http://10.40.10.180:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -131,7 +105,6 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
     container_name: bb_frontend
     ports:
       - "3001:3001"
@@ -144,10 +117,37 @@ services:
       - brainbrawler
     restart: unless-stopped
 
+  # Adminer per gestione DB
+  adminer:
+    image: adminer
+    container_name: bb_adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - brainbrawler
+    restart: unless-stopped
+
+  # Kafka UI per monitoraggio
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: bb_kafka_ui
+    depends_on:
+      - kafka
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    networks:
+      - brainbrawler
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
+  kafka_data:
 
 networks:
   brainbrawler:
-    driver: bridge 
+    driver: bridge
+   
