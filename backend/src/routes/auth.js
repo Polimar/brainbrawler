@@ -639,4 +639,49 @@ router.get('/email-status', (req, res) => {
   res.json(status);
 });
 
+// Update account type (for account setup flow)
+router.post('/update-account-type', authenticateToken, async (req, res) => {
+  try {
+    const { accountType } = req.body;
+
+    // Validate account type
+    if (!accountType || !['FREE', 'PREMIUM', 'ADMIN'].includes(accountType)) {
+      return res.status(400).json({ error: 'Invalid account type' });
+    }
+
+    // Update user
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { 
+        accountType,
+        hasCompletedSetup: true
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        displayName: true,
+        avatar: true,
+        level: true,
+        xp: true,
+        totalGamesPlayed: true,
+        totalWins: true,
+        totalScore: true,
+        emailVerified: true,
+        accountType: true,
+        hasCompletedSetup: true,
+        createdAt: true
+      }
+    });
+
+    res.json({
+      message: 'Account type updated successfully',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Account type update error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router; 

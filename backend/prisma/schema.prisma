@@ -25,6 +25,7 @@ model User {
   emailVerificationCode String?
   emailVerificationExpires DateTime?
   accountType     AccountType @default(FREE)
+  hasCompletedSetup Boolean @default(false)
   totalGamesPlayed Int      @default(0)
   totalWins       Int       @default(0)
   totalScore      Int       @default(0)

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Plan - BrainBrawler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 20px;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .plans-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        .plan {
+            padding: 50px 40px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .plan:hover {
+            background: #f8fafc;
+        }
+
+        .plan.premium {
+            background: linear-gradient(135deg, #ff8f00 0%, #ff6f00 100%);
+            color: white;
+            position: relative;
+        }
+
+        .plan.premium::before {
+            content: "RECOMMENDED";
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .plan-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .plan-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .plan-price {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        .plan-price small {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 40px;
+        }
+
+        .plan-features li {
+            padding: 10px 0;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            margin-right: 10px;
+            font-weight: bold;
+            color: #10b981;
+        }
+
+        .plan.premium .plan-features li::before {
+            color: #fbbf24;
+        }
+
+        .plan-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .plan-button:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .plan.premium .plan-button {
+            background: white;
+            color: #ff6f00;
+        }
+
+        .plan.premium .plan-button:hover {
+            background: #f7fafc;
+            box-shadow: 0 10px 25px rgba(255, 255, 255, 0.3);
+        }
+
+        .footer {
+            background: #f8fafc;
+            padding: 30px 40px;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .footer p {
+            margin-bottom: 20px;
+        }
+
+        .skip-button {
+            background: none;
+            border: 2px solid #cbd5e1;
+            color: #64748b;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 15px;
+        }
+
+        .skip-button:hover {
+            border-color: #94a3b8;
+            color: #475569;
+        }
+
+        .upgrade-later {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-later:hover {
+            background: #5a67d8;
+        }
+
+        @media (max-width: 768px) {
+            .plans-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .plan {
+                padding: 30px 20px;
+            }
+        }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Welcome to BrainBrawler!</h1>
+            <p>Choose your plan to get started with the ultimate quiz experience</p>
+        </div>
+
+        <div class="plans-container">
+            <!-- FREE Plan -->
+            <div class="plan free">
+                <div class="plan-icon">🎮</div>
+                <div class="plan-title">Free Player</div>
+                <div class="plan-price">
+                    FREE
+                    <small>Forever</small>
+                </div>
+                <ul class="plan-features">
+                    <li>Join unlimited quiz games</li>
+                    <li>Track your statistics</li>
+                    <li>Global leaderboards</li>
+                    <li>Basic profile customization</li>
+                    <li>Play with friends worldwide</li>
+                </ul>
+                <button class="plan-button" onclick="selectPlan('FREE')">
+                    <span class="loading" id="freeLoading">
+                        <div class="spinner"></div>
+                        Setting up...
+                    </span>
+                    <span id="freeText">Start Playing Free</span>
+                </button>
+            </div>
+
+            <!-- PREMIUM Plan -->
+            <div class="plan premium">
+                <div class="plan-icon">⭐</div>
+                <div class="plan-title">Premium Player</div>
+                <div class="plan-price">
+                    $4.99
+                    <small>One-time payment</small>
+                </div>
+                <ul class="plan-features">
+                    <li>Everything in Free</li>
+                    <li>Create custom quiz rooms</li>
+                    <li>Upload custom questions</li>
+                    <li>Private rooms with friends</li>
+                    <li>Advanced statistics</li>
+                    <li>Premium profile themes</li>
+                    <li>Priority support</li>
+                </ul>
+                <button class="plan-button" onclick="selectPlan('PREMIUM')">
+                    <span class="loading" id="premiumLoading">
+                        <div class="spinner"></div>
+                        Processing...
+                    </span>
+                    <span id="premiumText">Upgrade to Premium</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>You can always upgrade later from your account settings</p>
+            <button class="skip-button" onclick="selectPlan('FREE')">Continue Free</button>
+            <button class="upgrade-later" onclick="goToLobby()">I'll decide later</button>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = `http://${window.location.hostname}:3000`;
+        let currentUser = null;
+
+        // Load user data on page load
+        window.addEventListener('load', async () => {
+            const storedUser = localStorage.getItem('brainbrawler_user');
+            const token = localStorage.getItem('brainbrawler_token');
+
+            if (!storedUser || !token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(storedUser);
+
+            // If user already has PREMIUM, go to lobby directly
+            if (currentUser.accountType === 'PREMIUM' || currentUser.accountType === 'ADMIN') {
+                goToLobby();
+                return;
+            }
+            
+            // Show the account setup page for FREE users or new users
+        });
+
+        // Select plan function
+        async function selectPlan(planType) {
+            if (!currentUser) {
+                alert('Please login first');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Show loading
+            const loadingElement = document.getElementById(planType.toLowerCase() + 'Loading');
+            const textElement = document.getElementById(planType.toLowerCase() + 'Text');
+            
+            if (loadingElement && textElement) {
+                loadingElement.style.display = 'flex';
+                textElement.style.display = 'none';
+            }
+
+            try {
+                if (planType === 'PREMIUM') {
+                    // TODO: Implement payment processing
+                    alert('Payment processing will be implemented soon!\n\nFor now, this sets you as Premium for demo purposes.');
+                }
+
+                // Update user account type
+                const token = localStorage.getItem('brainbrawler_token');
+                const response = await fetch(`${API_BASE}/api/auth/update-account-type`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ accountType: planType })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentUser.accountType = planType;
+                    localStorage.setItem('brainbrawler_user', JSON.stringify(currentUser));
+                    
+                    // Short delay for better UX
+                    setTimeout(() => {
+                        goToLobby();
+                    }, 1000);
+                } else {
+                    throw new Error('Failed to update account type');
+                }
+            } catch (error) {
+                console.error('Error selecting plan:', error);
+                alert('Error updating account. Please try again.');
+                
+                // Hide loading
+                if (loadingElement && textElement) {
+                    loadingElement.style.display = 'none';
+                    textElement.style.display = 'inline';
+                }
+            }
+        }
+
+        // Go to lobby
+        function goToLobby() {
+            window.location.href = 'lobby.html';
+        }
+    </script>
+</body>
+</html> 

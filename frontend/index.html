@@ -848,7 +848,8 @@
                     if (data.user.emailVerified === false) {
                         window.location.href = 'verify-email.html';
                     } else {
-                        window.location.href = 'lobby.html';
+                        // Always go to account setup for new users to choose plan
+                        window.location.href = 'account-setup.html';
                     }
                 } else {
                     setValidationMessage(
