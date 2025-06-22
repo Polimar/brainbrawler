@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 BrainBrawler - Game</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow: hidden;
+        }
+
+        /* Game Container */
+        .game-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Top Ad Banner for FREE users */
+        .top-ad-banner {
+            background: #fff;
+            border-bottom: 2px solid #e1e5e9;
+            padding: 10px;
+            text-align: center;
+            display: none;
+            min-height: 60px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .top-ad-banner.show {
+            display: flex;
+        }
+
+        .ad-placeholder {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border: 2px dashed #adb5bd;
+            border-radius: 8px;
+            padding: 15px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            width: 100%;
+            max-width: 728px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Game Header */
+        .game-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+        }
+
+        .game-info {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .question-counter {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .timer {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            min-width: 80px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .timer.warning {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .score-display {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #28a745;
+        }
+
+        /* Main Game Area */
+        .game-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .question-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 50px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .question-number {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 40px;
+            line-height: 1.4;
+        }
+
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .answer-option {
+            background: white;
+            border: 3px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .answer-option:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .answer-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .answer-option.correct {
+            border-color: #28a745;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .answer-option.incorrect {
+            border-color: #dc3545;
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .answer-option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .answer-letter {
+            background: rgba(255, 255, 255, 0.2);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .answer-option:not(.selected) .answer-letter {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Bottom Ad Banner for FREE users */
+        .bottom-ad-banner {
+            background: #fff;
+            border-top: 2px solid #e1e5e9;
+            padding: 10px;
+            text-align: center;
+            display: none;
+            min-height: 60px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bottom-ad-banner.show {
+            display: flex;
+        }
+
+        /* Results Screen */
+        .results-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .results-screen.show {
+            display: flex;
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 25px;
+            padding: 50px;
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .results-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+
+        .final-score {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Interstitial Ad for FREE users */
+        .interstitial-ad {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .interstitial-ad.show {
+            display: flex;
+        }
+
+        .interstitial-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .interstitial-countdown {
+            font-size: 1.2rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        /* Loading State */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Premium Notice */
+        .premium-notice {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-weight: 600;
+            display: none;
+        }
+
+        .premium-notice.show {
+            display: block;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .game-header {
+                padding: 15px;
+            }
+
+            .game-info {
+                gap: 15px;
+            }
+
+            .question-container {
+                padding: 30px 20px;
+                margin: 0 10px;
+            }
+
+            .question-text {
+                font-size: 1.4rem;
+            }
+
+            .answers-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .answer-option {
+                padding: 20px 15px;
+            }
+
+            .results-container {
+                padding: 30px 20px;
+                margin: 0 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Premium Notice -->
+    <div class="premium-notice" id="premiumNotice">
+        ⭐ Premium Experience - Ad-Free Gaming
+    </div>
+
+    <!-- Top Ad Banner (FREE users only) -->
+    <div class="top-ad-banner" id="topAdBanner">
+        <div class="ad-placeholder">
+            📱 Advertisement Space - 728x90 Banner
+            <br><small>Ads help keep BrainBrawler free for everyone</small>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <!-- Game Header -->
+        <div class="game-header">
+            <div class="game-info">
+                <div class="question-counter" id="questionCounter">Question 1 of 10</div>
+                <div class="timer" id="timer">10</div>
+            </div>
+            <div class="score-display" id="scoreDisplay">Score: 0</div>
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="game-main" id="gameMain">
+            <!-- Loading State -->
+            <div class="loading" id="loadingState">
+                <div class="spinner"></div>
+                <h3>Loading Game...</h3>
+                <p>Preparing your quiz questions</p>
+            </div>
+
+            <!-- Question Container -->
+            <div class="question-container" id="questionContainer" style="display: none;">
+                <div class="question-number" id="questionNumber">Question 1</div>
+                <div class="question-text" id="questionText">Loading question...</div>
+                
+                <div class="answers-grid" id="answersGrid">
+                    <div class="answer-option" data-answer="0">
+                        <div class="answer-letter">A</div>
+                        <div class="answer-text">Option A</div>
+                    </div>
+                    <div class="answer-option" data-answer="1">
+                        <div class="answer-letter">B</div>
+                        <div class="answer-text">Option B</div>
+                    </div>
+                    <div class="answer-option" data-answer="2">
+                        <div class="answer-letter">C</div>
+                        <div class="answer-text">Option C</div>
+                    </div>
+                    <div class="answer-option" data-answer="3">
+                        <div class="answer-letter">D</div>
+                        <div class="answer-text">Option D</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Ad Banner (FREE users only) -->
+        <div class="bottom-ad-banner" id="bottomAdBanner">
+            <div class="ad-placeholder">
+                📱 Advertisement Space - 320x50 Banner
+            </div>
+        </div>
+    </div>
+
+    <!-- Interstitial Ad (FREE users only) -->
+    <div class="interstitial-ad" id="interstitialAd">
+        <div class="interstitial-content">
+            <div class="interstitial-countdown" id="interstitialCountdown">
+                Advertisement - 3 seconds remaining
+            </div>
+            <div class="ad-placeholder" style="height: 250px;">
+                📱 Full-Screen Advertisement
+                <br><br>
+                <small>This ad will close automatically</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Screen -->
+    <div class="results-screen" id="resultsScreen">
+        <div class="results-container">
+            <div class="results-title">🎉 Game Complete!</div>
+            <div class="final-score" id="finalScore">0</div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="correctAnswers">0</div>
+                    <div class="stat-label">Correct Answers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="accuracy">0%</div>
+                    <div class="stat-label">Accuracy</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="avgTime">0s</div>
+                    <div class="stat-label">Avg. Response Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="rank">#1</div>
+                    <div class="stat-label">Final Rank</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px;">
+                <a href="lobby.html" class="btn btn-primary">Play Again</a>
+                <a href="lobby.html" class="btn btn-secondary">Back to Lobby</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = `http://${window.location.hostname}:3000`;
+        
+        // Game state
+        let currentUser = null;
+        let gameState = {
+            questions: [],
+            currentQuestion: 0,
+            score: 0,
+            correctAnswers: 0,
+            startTime: null,
+            questionStartTime: null,
+            responseTimes: [],
+            selectedAnswer: null,
+            gameId: null
+        };
+
+        // Timer
+        let timerInterval = null;
+        let timeLeft = 10;
+
+        // Initialize game
+        window.addEventListener('load', async () => {
+            await loadUser();
+            await initializeGame();
+        });
+
+        // Load user data
+        async function loadUser() {
+            const storedUser = localStorage.getItem('brainbrawler_user');
+            const token = localStorage.getItem('brainbrawler_token');
+
+            if (!storedUser || !token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(storedUser);
+            
+            // Show appropriate UI based on account type
+            if (currentUser.accountType === 'PREMIUM' || currentUser.accountType === 'ADMIN') {
+                showPremiumExperience();
+            } else {
+                showFreeExperience();
+            }
+        }
+
+        // Show premium experience (ad-free)
+        function showPremiumExperience() {
+            document.getElementById('premiumNotice').classList.add('show');
+            // Hide all ad elements
+            const adElements = ['topAdBanner', 'bottomAdBanner'];
+            adElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.classList.remove('show');
+                }
+            });
+        }
+
+        // Show free experience (with ads)
+        function showFreeExperience() {
+            // Show ad banners
+            const adElements = ['topAdBanner', 'bottomAdBanner'];
+            adElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.classList.add('show');
+                }
+            });
+        }
+
+        // Initialize game
+        async function initializeGame() {
+            try {
+                // Get room ID from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const roomId = urlParams.get('room');
+                
+                if (!roomId) {
+                    alert('No room specified');
+                    window.location.href = 'lobby.html';
+                    return;
+                }
+
+                gameState.gameId = roomId;
+                
+                // Load questions
+                await loadQuestions();
+                
+                // Start game
+                startGame();
+                
+            } catch (error) {
+                console.error('Game initialization error:', error);
+                alert('Failed to initialize game');
+                window.location.href = 'lobby.html';
+            }
+        }
+
+        // Load questions
+        async function loadQuestions() {
+            try {
+                const token = localStorage.getItem('brainbrawler_token');
+                
+                // For now, use mock questions since we don't have a game endpoint yet
+                gameState.questions = [
+                    {
+                        text: "What is the capital of Italy?",
+                        options: ["Rome", "Milan", "Naples", "Florence"],
+                        correctAnswer: 0
+                    },
+                    {
+                        text: "Which planet is known as the Red Planet?",
+                        options: ["Venus", "Mars", "Jupiter", "Saturn"],
+                        correctAnswer: 1
+                    },
+                    {
+                        text: "What is 2 + 2?",
+                        options: ["3", "4", "5", "6"],
+                        correctAnswer: 1
+                    },
+                    {
+                        text: "Who painted the Mona Lisa?",
+                        options: ["Van Gogh", "Picasso", "Leonardo da Vinci", "Michelangelo"],
+                        correctAnswer: 2
+                    },
+                    {
+                        text: "What is the largest mammal?",
+                        options: ["Elephant", "Blue Whale", "Giraffe", "Hippo"],
+                        correctAnswer: 1
+                    }
+                ];
+                
+            } catch (error) {
+                console.error('Error loading questions:', error);
+                throw error;
+            }
+        }
+
+        // Start game
+        function startGame() {
+            gameState.startTime = Date.now();
+            gameState.currentQuestion = 0;
+            
+            // Hide loading, show game
+            document.getElementById('loadingState').classList.remove('show');
+            document.getElementById('questionContainer').style.display = 'block';
+            
+            showQuestion();
+        }
+
+        // Show current question
+        function showQuestion() {
+            const question = gameState.questions[gameState.currentQuestion];
+            
+            // Update UI
+            document.getElementById('questionCounter').textContent = 
+                `Question ${gameState.currentQuestion + 1} of ${gameState.questions.length}`;
+            document.getElementById('questionNumber').textContent = 
+                `Question ${gameState.currentQuestion + 1}`;
+            document.getElementById('questionText').textContent = question.text;
+            
+            // Update answer options
+            const answerOptions = document.querySelectorAll('.answer-option');
+            answerOptions.forEach((option, index) => {
+                const textElement = option.querySelector('.answer-text');
+                textElement.textContent = question.options[index];
+                
+                // Reset styles
+                option.className = 'answer-option';
+                option.onclick = () => selectAnswer(index);
+            });
+            
+            // Start timer
+            startTimer();
+            gameState.questionStartTime = Date.now();
+            gameState.selectedAnswer = null;
+        }
+
+        // Start timer
+        function startTimer() {
+            timeLeft = 10; // 10 seconds per question as per UX spec
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 3) {
+                    document.getElementById('timer').classList.add('warning');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timeUp();
+                }
+            }, 1000);
+        }
+
+        // Update timer display
+        function updateTimerDisplay() {
+            document.getElementById('timer').textContent = timeLeft;
+        }
+
+        // Select answer
+        function selectAnswer(answerIndex) {
+            if (gameState.selectedAnswer !== null) return; // Already answered
+            
+            gameState.selectedAnswer = answerIndex;
+            const responseTime = Date.now() - gameState.questionStartTime;
+            gameState.responseTimes.push(responseTime);
+            
+            // Clear timer
+            clearInterval(timerInterval);
+            document.getElementById('timer').classList.remove('warning');
+            
+            // Show correct/incorrect
+            showAnswerResult(answerIndex);
+            
+            // Calculate score
+            const question = gameState.questions[gameState.currentQuestion];
+            if (answerIndex === question.correctAnswer) {
+                gameState.correctAnswers++;
+                // Score based on speed (more points for faster answers)
+                const speedBonus = Math.max(0, timeLeft * 10);
+                gameState.score += 100 + speedBonus;
+            }
+            
+            updateScoreDisplay();
+            
+            // Move to next question after delay
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        // Time up
+        function timeUp() {
+            if (gameState.selectedAnswer !== null) return; // Already answered
+            
+            gameState.selectedAnswer = -1; // No answer
+            gameState.responseTimes.push(10000); // Max time
+            
+            // Show correct answer
+            showAnswerResult(-1);
+            
+            // Move to next question after delay
+            setTimeout(() => {
+                nextQuestion();
+            }, 2000);
+        }
+
+        // Show answer result
+        function showAnswerResult(selectedIndex) {
+            const question = gameState.questions[gameState.currentQuestion];
+            const answerOptions = document.querySelectorAll('.answer-option');
+            
+            answerOptions.forEach((option, index) => {
+                option.classList.add('disabled');
+                option.onclick = null;
+                
+                if (index === question.correctAnswer) {
+                    option.classList.add('correct');
+                } else if (index === selectedIndex && selectedIndex !== question.correctAnswer) {
+                    option.classList.add('incorrect');
+                }
+            });
+        }
+
+        // Next question
+        function nextQuestion() {
+            gameState.currentQuestion++;
+            
+            if (gameState.currentQuestion >= gameState.questions.length) {
+                // Game finished
+                endGame();
+            } else {
+                // Show interstitial ad for FREE users (every 2 questions)
+                if (currentUser.accountType === 'FREE' && gameState.currentQuestion % 2 === 0) {
+                    showInterstitialAd(() => {
+                        showQuestion();
+                    });
+                } else {
+                    showQuestion();
+                }
+            }
+        }
+
+        // Show interstitial ad
+        function showInterstitialAd(callback) {
+            const interstitial = document.getElementById('interstitialAd');
+            const countdown = document.getElementById('interstitialCountdown');
+            
+            interstitial.classList.add('show');
+            
+            let timeLeft = 3;
+            const countdownInterval = setInterval(() => {
+                countdown.textContent = `Advertisement - ${timeLeft} seconds remaining`;
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(countdownInterval);
+                    interstitial.classList.remove('show');
+                    callback();
+                }
+            }, 1000);
+        }
+
+        // Update score display
+        function updateScoreDisplay() {
+            document.getElementById('scoreDisplay').textContent = `Score: ${gameState.score}`;
+        }
+
+        // End game
+        function endGame() {
+            // Show final interstitial for FREE users
+            if (currentUser.accountType === 'FREE') {
+                showInterstitialAd(() => {
+                    showResults();
+                });
+            } else {
+                showResults();
+            }
+        }
+
+        // Show results
+        function showResults() {
+            const accuracy = Math.round((gameState.correctAnswers / gameState.questions.length) * 100);
+            const avgTime = Math.round(gameState.responseTimes.reduce((a, b) => a + b, 0) / gameState.responseTimes.length / 1000);
+            
+            // Update results display
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('correctAnswers').textContent = gameState.correctAnswers;
+            document.getElementById('accuracy').textContent = `${accuracy}%`;
+            document.getElementById('avgTime').textContent = `${avgTime}s`;
+            document.getElementById('rank').textContent = '#1'; // Mock rank
+            
+            // Show results screen
+            document.getElementById('resultsScreen').classList.add('show');
+            
+            // TODO: Send results to server
+            // saveGameResults();
+        }
+
+        // Save game results (to be implemented)
+        async function saveGameResults() {
+            try {
+                const token = localStorage.getItem('brainbrawler_token');
+                const response = await fetch(`${API_BASE}/api/game/results`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        gameId: gameState.gameId,
+                        score: gameState.score,
+                        correctAnswers: gameState.correctAnswers,
+                        totalAnswers: gameState.questions.length,
+                        responseTimes: gameState.responseTimes
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log('Game results saved');
+                }
+            } catch (error) {
+                console.error('Error saving results:', error);
+            }
+        }
+    </script>
+</body>
+</html> 

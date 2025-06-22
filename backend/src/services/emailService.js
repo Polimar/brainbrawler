@@ -93,6 +93,9 @@ class EmailService {
         `
       };
 
+      // Always log verification code in development
+      console.log(`🔐 VERIFICATION CODE for ${email}: ${code}`);
+      
       // Prova prima a inviare via SMTP
       try {
         await this.transporter.sendMail(mailOptions);

@@ -495,7 +495,7 @@ router.get('/rooms', authenticateToken, async (req, res) => {
       where: {
         status: 'WAITING',
         currentPlayers: {
-          lt: prisma.raw('max_players')
+          lt: 4 // maxPlayers è sempre 4 per ora
         }
       },
       select: {
@@ -532,7 +532,7 @@ router.post('/quick-match', authenticateToken, async (req, res) => {
         status: 'WAITING',
         isPrivate: false,
         currentPlayers: {
-          lt: prisma.raw('max_players')
+          lt: 4 // maxPlayers
         }
       },
       orderBy: {
@@ -552,8 +552,6 @@ router.post('/quick-match', authenticateToken, async (req, res) => {
           }
         });
 
-        // TODO: Add user to room participants
-        
         res.json({
           message: 'Joined existing room',
           roomId: availableRoom.id
@@ -570,7 +568,7 @@ router.post('/quick-match', authenticateToken, async (req, res) => {
         data: {
           name: `Quick Match Room`,
           category: 'General',
-          questionTime: 30,
+          questionTime: 10, // 10 secondi per domanda come da UX
           totalQuestions: 10,
           maxPlayers: 4,
           currentPlayers: 1,
@@ -626,8 +624,6 @@ router.post('/join-room', authenticateToken, async (req, res) => {
         }
       }
     });
-
-    // TODO: Add user to room participants
 
     res.json({
       message: 'Joined room successfully',

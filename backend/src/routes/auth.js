@@ -495,6 +495,9 @@ router.get('/profile', authenticateToken, async (req, res) => {
         totalGamesPlayed: true,
         totalWins: true,
         totalScore: true,
+        emailVerified: true,
+        accountType: true,
+        hasCompletedSetup: true,
         createdAt: true,
         lastLoginAt: true
       }
@@ -542,6 +545,9 @@ router.put('/profile', authenticateToken, async (req, res) => {
         totalGamesPlayed: true,
         totalWins: true,
         totalScore: true,
+        emailVerified: true,
+        accountType: true,
+        hasCompletedSetup: true,
         createdAt: true,
         lastLoginAt: true
       }

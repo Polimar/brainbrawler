@@ -3,6 +3,162 @@ const bcrypt = require('bcryptjs');
 
 const prisma = new PrismaClient();
 
+// Seed questions for testing
+async function seedQuestions() {
+  console.log('🌱 Seeding questions...');
+
+  // Create categories
+  const categories = await Promise.all([
+    prisma.category.upsert({
+      where: { name: 'General Knowledge' },
+      update: {},
+      create: {
+        name: 'General Knowledge',
+        description: 'General knowledge questions',
+        icon: '🧠',
+        color: '#667eea'
+      }
+    }),
+    prisma.category.upsert({
+      where: { name: 'Science' },
+      update: {},
+      create: {
+        name: 'Science',
+        description: 'Science and technology questions',
+        icon: '🔬',
+        color: '#28a745'
+      }
+    }),
+    prisma.category.upsert({
+      where: { name: 'History' },
+      update: {},
+      create: {
+        name: 'History',
+        description: 'Historical events and figures',
+        icon: '📚',
+        color: '#dc3545'
+      }
+    })
+  ]);
+
+  // Sample questions
+  const questions = [
+    {
+      text: "What is the capital of Italy?",
+      options: ["Rome", "Milan", "Naples", "Florence"],
+      correctAnswer: 0,
+      categoryId: categories[0].id,
+      difficulty: 'EASY'
+    },
+    {
+      text: "Which planet is known as the Red Planet?",
+      options: ["Venus", "Mars", "Jupiter", "Saturn"],
+      correctAnswer: 1,
+      categoryId: categories[1].id,
+      difficulty: 'EASY'
+    },
+    {
+      text: "In which year did World War II end?",
+      options: ["1944", "1945", "1946", "1947"],
+      correctAnswer: 1,
+      categoryId: categories[2].id,
+      difficulty: 'MEDIUM'
+    },
+    {
+      text: "What is the largest mammal in the world?",
+      options: ["African Elephant", "Blue Whale", "Giraffe", "Hippopotamus"],
+      correctAnswer: 1,
+      categoryId: categories[1].id,
+      difficulty: 'EASY'
+    },
+    {
+      text: "Who painted the Mona Lisa?",
+      options: ["Vincent van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"],
+      correctAnswer: 2,
+      categoryId: categories[0].id,
+      difficulty: 'MEDIUM'
+    },
+    {
+      text: "What is the chemical symbol for gold?",
+      options: ["Go", "Gd", "Au", "Ag"],
+      correctAnswer: 2,
+      categoryId: categories[1].id,
+      difficulty: 'MEDIUM'
+    },
+    {
+      text: "Which ancient wonder of the world was located in Alexandria?",
+      options: ["Hanging Gardens", "Lighthouse of Alexandria", "Colossus of Rhodes", "Temple of Artemis"],
+      correctAnswer: 1,
+      categoryId: categories[2].id,
+      difficulty: 'HARD'
+    },
+    {
+      text: "What is the smallest country in the world?",
+      options: ["Monaco", "San Marino", "Vatican City", "Liechtenstein"],
+      correctAnswer: 2,
+      categoryId: categories[0].id,
+      difficulty: 'MEDIUM'
+    },
+    {
+      text: "Which element has the atomic number 1?",
+      options: ["Helium", "Hydrogen", "Lithium", "Carbon"],
+      correctAnswer: 1,
+      categoryId: categories[1].id,
+      difficulty: 'EASY'
+    },
+    {
+      text: "Who was the first Emperor of Rome?",
+      options: ["Julius Caesar", "Augustus", "Nero", "Trajan"],
+      correctAnswer: 1,
+      categoryId: categories[2].id,
+      difficulty: 'HARD'
+    }
+  ];
+
+  // Create questions
+  for (const questionData of questions) {
+    await prisma.question.upsert({
+      where: { text: questionData.text },
+      update: {},
+      create: questionData
+    });
+  }
+
+  // Create a default question set
+  const questionSet = await prisma.questionSet.upsert({
+    where: { name: 'General Quiz Set' },
+    update: {},
+    create: {
+      name: 'General Quiz Set',
+      description: 'A mix of general knowledge questions',
+      isPublic: true,
+      createdBy: 'system'
+    }
+  });
+
+  // Add questions to the set
+  const allQuestions = await prisma.question.findMany();
+  for (let i = 0; i < allQuestions.length; i++) {
+    await prisma.questionSetItem.upsert({
+      where: {
+        questionSetId_questionId: {
+          questionSetId: questionSet.id,
+          questionId: allQuestions[i].id
+        }
+      },
+      update: {},
+      create: {
+        questionSetId: questionSet.id,
+        questionId: allQuestions[i].id,
+        order: i + 1
+      }
+    });
+  }
+
+  console.log('✅ Questions seeded successfully');
+}
+
+// Main seed function
 async function main() {
   console.log('🌱 Starting database seed...');
 
@@ -455,4 +611,6 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect();
-  }); 
+  });
+
+module.exports = { seedQuestions }; 
