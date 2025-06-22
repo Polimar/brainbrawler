@@ -250,9 +250,9 @@
         });
 
         function checkPremiumAccess() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!user.token || user.accountType !== 'PREMIUM') {
-                alert('This feature requires a Premium account!');
+            const user = JSON.parse(localStorage.getItem('brainbrawler_user') || '{}');
+            if (!user.token || (user.accountType !== 'PREMIUM' && user.accountType !== 'ADMIN')) {
+                alert('This feature requires a Premium account! Upgrade now to create custom rooms.');
                 window.location.href = 'lobby.html';
                 return;
             }
@@ -301,7 +301,7 @@
             };
 
             try {
-                const user = JSON.parse(localStorage.getItem('user'));
+                const user = JSON.parse(localStorage.getItem('brainbrawler_user'));
                 
                 const response = await fetch(`http://${window.location.hostname}:3000/api/game/create-room`, {
                     method: 'POST',

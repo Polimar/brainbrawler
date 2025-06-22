@@ -434,9 +434,9 @@
         });
 
         function checkPremiumAccess() {
-            const user = JSON.parse(localStorage.getItem('user') || '{}');
-            if (!user.token || user.accountType !== 'PREMIUM') {
-                alert('This feature requires a Premium account!');
+            const user = JSON.parse(localStorage.getItem('brainbrawler_user') || '{}');
+            if (!user.token || (user.accountType !== 'PREMIUM' && user.accountType !== 'ADMIN')) {
+                alert('This feature requires a Premium account! Upgrade now to manage custom questions.');
                 window.location.href = 'lobby.html';
                 return;
             }
@@ -494,7 +494,7 @@
 
         async function loadQuestions() {
             try {
-                const user = JSON.parse(localStorage.getItem('user'));
+                const user = JSON.parse(localStorage.getItem('brainbrawler_user'));
                 const response = await fetch(`http://${window.location.hostname}:3000/api/questions/my`, {
                     headers: {
                         'Authorization': `Bearer ${user.token}`
@@ -593,7 +593,7 @@
             };
 
             try {
-                const user = JSON.parse(localStorage.getItem('user'));
+                const user = JSON.parse(localStorage.getItem('brainbrawler_user'));
                 const response = await fetch(`http://${window.location.hostname}:3000/api/questions`, {
                     method: 'POST',
                     headers: {
