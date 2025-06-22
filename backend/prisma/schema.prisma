@@ -71,6 +71,7 @@ model Question {
   explanation   String?    // Spiegazione risposta
   timeLimit     Int        @default(15) // secondi
   isActive      Boolean    @default(true)
+  createdBy     String     @default("system") // ID dell'utente che ha creato la domanda
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   
@@ -89,6 +90,7 @@ model QuestionSet {
   updatedAt   DateTime            @updatedAt
   
   questions   QuestionSetItem[]
+  games       Game[]
   
   @@map("question_sets")
 }
@@ -108,9 +110,11 @@ model QuestionSetItem {
 
 model Game {
   id              String        @id @default(cuid())
+  roomCode        String        @unique @default(cuid())
   name            String?
   category        String        @default("General")
   questionTime    Int           @default(30)
+  timePerQuestion Int           @default(30) // Alias per questionTime
   totalQuestions  Int           @default(10)
   currentQuestion Int           @default(0)
   status          GameStatus    @default(WAITING)
@@ -118,8 +122,12 @@ model Game {
   currentPlayers  Int           @default(0)
   isPrivate       Boolean       @default(false)
   password        String?
+  questionSetId   String?
+  questionSet     QuestionSet?  @relation(fields: [questionSetId], references: [id])
   createdBy       String
   creator         User          @relation("GameCreator", fields: [createdBy], references: [id])
+  startedAt       DateTime?
+  endedAt         DateTime?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   

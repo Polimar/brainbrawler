@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Statistics - BrainBrawler</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .premium-badge {
+            display: inline-block;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            color: #718096;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .stat-card .change {
+            font-size: 0.8rem;
+            margin-top: 5px;
+        }
+
+        .stat-card .change.positive {
+            color: #48bb78;
+        }
+
+        .stat-card .change.negative {
+            color: #f56565;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card h3 {
+            color: #2d3748;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .performance-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .performance-section h2 {
+            color: #2d3748;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .performance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .performance-card {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .performance-card h4 {
+            color: #2d3748;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .performance-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .performance-metric .label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .performance-metric .value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .leaderboard-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .leaderboard-section h2 {
+            color: #2d3748;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: #f7fafc;
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .leaderboard-item:hover {
+            background: #edf2f7;
+        }
+
+        .leaderboard-item.current-user {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 2px solid #667eea;
+        }
+
+        .leaderboard-rank {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #667eea;
+            width: 40px;
+            text-align: center;
+        }
+
+        .leaderboard-info {
+            flex: 1;
+            margin-left: 15px;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .leaderboard-level {
+            font-size: 0.8rem;
+            color: #718096;
+        }
+
+        .leaderboard-score {
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 1.1rem;
+        }
+
+        .time-filter {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .time-filter button {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .time-filter button.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #2d3748;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .performance-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .back-button {
+                position: static;
+                margin-bottom: 20px;
+                width: fit-content;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="lobby.html" class="back-button">
+        <i class="fas fa-arrow-left"></i> Back to Lobby
+    </a>
+
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-chart-line"></i> Advanced Statistics</h1>
+            <div class="premium-badge">
+                <i class="fas fa-crown"></i> Premium Feature
+            </div>
+            <p>Detailed analytics and performance insights</p>
+        </div>
+
+        <div class="time-filter">
+            <button class="active" onclick="setTimeFilter('week')">Last Week</button>
+            <button onclick="setTimeFilter('month')">Last Month</button>
+            <button onclick="setTimeFilter('year')">Last Year</button>
+            <button onclick="setTimeFilter('all')">All Time</button>
+        </div>
+
+        <div class="stats-overview">
+            <div class="stat-card">
+                <div class="icon" style="color: #667eea;">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="number" id="totalWins">0</div>
+                <div class="label">Total Wins</div>
+                <div class="change positive" id="winsChange">+0 this week</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="color: #48bb78;">
+                    <i class="fas fa-gamepad"></i>
+                </div>
+                <div class="number" id="totalGames">0</div>
+                <div class="label">Games Played</div>
+                <div class="change positive" id="gamesChange">+0 this week</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="color: #ed8936;">
+                    <i class="fas fa-percentage"></i>
+                </div>
+                <div class="number" id="winRate">0%</div>
+                <div class="label">Win Rate</div>
+                <div class="change positive" id="winRateChange">+0% this week</div>
+            </div>
+            <div class="stat-card">
+                <div class="icon" style="color: #f56565;">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="number" id="avgResponseTime">0s</div>
+                <div class="label">Avg Response Time</div>
+                <div class="change positive" id="responseTimeChange">-0s this week</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Performance Over Time</h3>
+                <canvas id="performanceChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Category Performance</h3>
+                <canvas id="categoryChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Difficulty Distribution</h3>
+                <canvas id="difficultyChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Response Time Distribution</h3>
+                <canvas id="responseTimeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="performance-section">
+            <h2>Detailed Performance Analysis</h2>
+            <div class="performance-grid">
+                <div class="performance-card">
+                    <h4>Accuracy by Category</h4>
+                    <div id="categoryAccuracy">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="performance-card">
+                    <h4>Recent Improvements</h4>
+                    <div id="improvements">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="performance-card">
+                    <h4>Strengths & Weaknesses</h4>
+                    <div id="strengths">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="performance-card">
+                    <h4>Goals & Achievements</h4>
+                    <div id="achievements">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="leaderboard-section">
+            <h2>Global Leaderboard</h2>
+            <div id="leaderboard">
+                <!-- Will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentTimeFilter = 'week';
+        let statsData = {};
+        let charts = {};
+
+        document.addEventListener('DOMContentLoaded', function() {
+            checkPremiumAccess();
+            loadStatistics();
+        });
+
+        function checkPremiumAccess() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.token || user.accountType !== 'PREMIUM') {
+                alert('This feature requires a Premium account!');
+                window.location.href = 'lobby.html';
+                return;
+            }
+        }
+
+        async function loadStatistics() {
+            try {
+                const user = JSON.parse(localStorage.getItem('user'));
+                const response = await fetch(`http://${window.location.hostname}:3000/api/stats/advanced?period=${currentTimeFilter}`, {
+                    headers: {
+                        'Authorization': `Bearer ${user.token}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    statsData = data.stats;
+                    updateOverviewStats();
+                    createCharts();
+                    updatePerformanceAnalysis();
+                    updateLeaderboard();
+                } else {
+                    // Load mock data for demo
+                    loadMockData();
+                }
+            } catch (error) {
+                console.error('Failed to load statistics:', error);
+                loadMockData();
+            }
+        }
+
+        function loadMockData() {
+            statsData = {
+                overview: {
+                    totalWins: 45,
+                    totalGames: 78,
+                    winRate: 57.7,
+                    avgResponseTime: 8.2,
+                    changes: {
+                        wins: 12,
+                        games: 18,
+                        winRate: 3.2,
+                        responseTime: -1.5
+                    }
+                },
+                performanceOverTime: [
+                    { date: '2024-06-15', score: 650, accuracy: 75 },
+                    { date: '2024-06-16', score: 720, accuracy: 80 },
+                    { date: '2024-06-17', score: 680, accuracy: 78 },
+                    { date: '2024-06-18', score: 780, accuracy: 85 },
+                    { date: '2024-06-19', score: 820, accuracy: 88 },
+                    { date: '2024-06-20', score: 760, accuracy: 82 },
+                    { date: '2024-06-21', score: 850, accuracy: 90 }
+                ],
+                categoryPerformance: {
+                    'Storia': 85,
+                    'Scienza': 78,
+                    'Geografia': 92,
+                    'Arte': 68,
+                    'Sport': 75,
+                    'Tecnologia': 88
+                },
+                difficultyDistribution: {
+                    'Easy': 45,
+                    'Medium': 35,
+                    'Hard': 20
+                },
+                responseTimeDistribution: [
+                    { range: '0-5s', count: 25 },
+                    { range: '5-10s', count: 35 },
+                    { range: '10-15s', count: 28 },
+                    { range: '15-20s', count: 12 }
+                ]
+            };
+
+            updateOverviewStats();
+            createCharts();
+            updatePerformanceAnalysis();
+            updateLeaderboard();
+        }
+
+        function updateOverviewStats() {
+            const { overview } = statsData;
+            
+            document.getElementById('totalWins').textContent = overview.totalWins;
+            document.getElementById('totalGames').textContent = overview.totalGames;
+            document.getElementById('winRate').textContent = overview.winRate + '%';
+            document.getElementById('avgResponseTime').textContent = overview.avgResponseTime + 's';
+
+            // Update changes
+            const changes = overview.changes;
+            document.getElementById('winsChange').textContent = `${changes.wins >= 0 ? '+' : ''}${changes.wins} this ${currentTimeFilter}`;
+            document.getElementById('gamesChange').textContent = `${changes.games >= 0 ? '+' : ''}${changes.games} this ${currentTimeFilter}`;
+            document.getElementById('winRateChange').textContent = `${changes.winRate >= 0 ? '+' : ''}${changes.winRate}% this ${currentTimeFilter}`;
+            document.getElementById('responseTimeChange').textContent = `${changes.responseTime >= 0 ? '+' : ''}${changes.responseTime}s this ${currentTimeFilter}`;
+        }
+
+        function createCharts() {
+            createPerformanceChart();
+            createCategoryChart();
+            createDifficultyChart();
+            createResponseTimeChart();
+        }
+
+        function createPerformanceChart() {
+            const ctx = document.getElementById('performanceChart').getContext('2d');
+            
+            if (charts.performance) {
+                charts.performance.destroy();
+            }
+
+            charts.performance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: statsData.performanceOverTime.map(item => new Date(item.date).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Score',
+                        data: statsData.performanceOverTime.map(item => item.score),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function createCategoryChart() {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            if (charts.category) {
+                charts.category.destroy();
+            }
+
+            charts.category = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: Object.keys(statsData.categoryPerformance),
+                    datasets: [{
+                        label: 'Accuracy %',
+                        data: Object.values(statsData.categoryPerformance),
+                        borderColor: '#48bb78',
+                        backgroundColor: 'rgba(72, 187, 120, 0.2)',
+                        pointBackgroundColor: '#48bb78',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#48bb78'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function createDifficultyChart() {
+            const ctx = document.getElementById('difficultyChart').getContext('2d');
+            
+            if (charts.difficulty) {
+                charts.difficulty.destroy();
+            }
+
+            charts.difficulty = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statsData.difficultyDistribution),
+                    datasets: [{
+                        data: Object.values(statsData.difficultyDistribution),
+                        backgroundColor: ['#48bb78', '#ed8936', '#f56565'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function createResponseTimeChart() {
+            const ctx = document.getElementById('responseTimeChart').getContext('2d');
+            
+            if (charts.responseTime) {
+                charts.responseTime.destroy();
+            }
+
+            charts.responseTime = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: statsData.responseTimeDistribution.map(item => item.range),
+                    datasets: [{
+                        label: 'Questions',
+                        data: statsData.responseTimeDistribution.map(item => item.count),
+                        backgroundColor: '#ed8936',
+                        borderColor: '#dd6b20',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function updatePerformanceAnalysis() {
+            // Category Accuracy
+            const categoryAccuracy = document.getElementById('categoryAccuracy');
+            categoryAccuracy.innerHTML = Object.entries(statsData.categoryPerformance).map(([category, accuracy]) => `
+                <div class="performance-metric">
+                    <span class="label">${category}</span>
+                    <span class="value">${accuracy}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: ${accuracy}%"></div>
+                </div>
+            `).join('');
+
+            // Mock data for other sections
+            document.getElementById('improvements').innerHTML = `
+                <div class="performance-metric">
+                    <span class="label">Response Time</span>
+                    <span class="value" style="color: #48bb78;">-15% faster</span>
+                </div>
+                <div class="performance-metric">
+                    <span class="label">Accuracy</span>
+                    <span class="value" style="color: #48bb78;">+8% improved</span>
+                </div>
+                <div class="performance-metric">
+                    <span class="label">Win Rate</span>
+                    <span class="value" style="color: #48bb78;">+12% higher</span>
+                </div>
+            `;
+
+            document.getElementById('strengths').innerHTML = `
+                <div class="performance-metric">
+                    <span class="label">Best Category</span>
+                    <span class="value">Geografia (92%)</span>
+                </div>
+                <div class="performance-metric">
+                    <span class="label">Improvement Area</span>
+                    <span class="value">Arte (68%)</span>
+                </div>
+                <div class="performance-metric">
+                    <span class="label">Fastest Responses</span>
+                    <span class="value">Tecnologia</span>
+                </div>
+            `;
+
+            document.getElementById('achievements').innerHTML = `
+                <div class="performance-metric">
+                    <span class="label">Recent Achievement</span>
+                    <span class="value">Perfect Game 💯</span>
+                </div>
+                <div class="performance-metric">
+                    <span class="label">Next Goal</span>
+                    <span class="value">Win Streak: 3/5</span>
+                </div>
+                <div class="performance-metric">
+                    <span class="label">Progress</span>
+                    <span class="value">Level 15 → 16</span>
+                </div>
+            `;
+        }
+
+        function updateLeaderboard() {
+            const leaderboard = document.getElementById('leaderboard');
+            const currentUser = JSON.parse(localStorage.getItem('user'));
+            
+            // Mock leaderboard data
+            const leaderboardData = [
+                { rank: 1, name: 'Quiz Master', level: 25, score: 15420, isCurrentUser: false },
+                { rank: 2, name: 'Brain Genius', level: 22, score: 14880, isCurrentUser: false },
+                { rank: 3, name: currentUser.displayName, level: 15, score: 12650, isCurrentUser: true },
+                { rank: 4, name: 'Smart Cookie', level: 18, score: 11900, isCurrentUser: false },
+                { rank: 5, name: 'Trivia King', level: 20, score: 11200, isCurrentUser: false }
+            ];
+
+            leaderboard.innerHTML = leaderboardData.map(player => `
+                <div class="leaderboard-item ${player.isCurrentUser ? 'current-user' : ''}">
+                    <div class="leaderboard-rank">#${player.rank}</div>
+                    <div class="leaderboard-info">
+                        <div class="leaderboard-name">${player.name} ${player.isCurrentUser ? '(You)' : ''}</div>
+                        <div class="leaderboard-level">Level ${player.level}</div>
+                    </div>
+                    <div class="leaderboard-score">${player.score.toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+
+        function setTimeFilter(period) {
+            currentTimeFilter = period;
+            
+            // Update button states
+            document.querySelectorAll('.time-filter button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Reload data
+            loadStatistics();
+        }
+    </script>
+</body>
+</html>

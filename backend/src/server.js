@@ -15,6 +15,7 @@ const { authMiddleware } = require('./middleware/auth');
 const authRoutes = require('./routes/auth');
 const gameRoutes = require('./routes/game');
 const userRoutes = require('./routes/user');
+const questionsRoutes = require('./routes/questions');
 
 const app = express();
 const server = http.createServer(app);
@@ -71,6 +72,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use('/api/auth', authRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/questions', questionsRoutes);
 
 // Health check
 app.get('/health', async (req, res) => {

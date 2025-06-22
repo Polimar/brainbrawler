@@ -5,6 +5,94 @@ const { authenticateToken, optionalAuth } = require('../middleware/auth');
 const router = express.Router();
 const prisma = new PrismaClient();
 
+// Crea una room personalizzata (PREMIUM only)
+router.post('/create-room', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // Verifica account premium
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+    
+    if (!user || (user.accountType !== 'PREMIUM' && user.accountType !== 'ADMIN')) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'This feature requires a Premium account' 
+      });
+    }
+
+    const { name, maxPlayers, questionTime, totalQuestions, category, isPrivate, password } = req.body;
+
+    // Genera room code univoco
+    const roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    // Ottieni un question set per la categoria selezionata
+    const questionSet = await prisma.questionSet.findFirst({
+      where: {
+        isPublic: true,
+        questions: {
+          some: {
+            question: {
+              categoryId: category || undefined
+            }
+          }
+        }
+      },
+      include: {
+        questions: {
+          include: {
+            question: true
+          }
+        }
+      }
+    });
+
+    if (!questionSet) {
+      return res.status(400).json({
+        success: false,
+        message: 'No question sets available for selected category'
+      });
+    }
+
+    // Crea la room
+    const room = await prisma.game.create({
+      data: {
+        roomCode,
+        name: name || `${user.displayName}'s Room`,
+        maxPlayers: maxPlayers || 4,
+        timePerQuestion: questionTime || 30,
+        totalQuestions: Math.min(totalQuestions || 10, questionSet.questions.length),
+        questionSetId: questionSet.id,
+        createdBy: userId,
+        isPrivate: isPrivate || false,
+        password: password || null,
+        status: 'LOBBY'
+      }
+    });
+
+    res.json({
+      success: true,
+      roomCode: room.roomCode,
+      room: {
+        id: room.id,
+        code: room.roomCode,
+        name: room.name,
+        maxPlayers: room.maxPlayers,
+        currentPlayers: 0,
+        status: room.status
+      }
+    });
+
+  } catch (error) {
+    console.error('Create room error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to create room' 
+    });
+  }
+});
+
 // Ottieni tutti i set di domande disponibili
 router.get('/question-sets', optionalAuth, async (req, res) => {
   try {
