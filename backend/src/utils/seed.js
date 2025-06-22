@@ -408,10 +408,8 @@ async function main() {
               data: {
                 name: `${category.name} - ${difficulty}`,
                 description: `Domande di ${category.name.toLowerCase()} di livello ${difficulty.toLowerCase()}`,
-                categoryId: category.id,
-                difficulty: difficulty,
                 isPublic: true,
-                isActive: true
+                createdBy: 'system'
               }
             });
 
@@ -436,10 +434,8 @@ async function main() {
             data: {
               name: `${category.name} - Mix`,
               description: `Domande miste di ${category.name.toLowerCase()} di varie difficoltà`,
-              categoryId: category.id,
-              difficulty: 'MEDIUM',
               isPublic: true,
-              isActive: true
+              createdBy: 'system'
             }
           });
 
@@ -517,46 +513,75 @@ async function main() {
       })
     ]);
 
-    // Crea utenti di esempio
-    console.log('👥 Creating demo users...');
+    // Crea utenti specifici per testing
+    console.log('👥 Creating test users...');
     const users = await Promise.all([
+      // Admin con super poteri
       prisma.user.create({
         data: {
           email: 'admin@brainbrawler.com',
           username: 'admin',
-          displayName: 'Admin User',
+          displayName: 'Super Admin',
           passwordHash: await bcrypt.hash('admin123', 12),
-          level: 5,
-          xp: 4500,
-          totalGamesPlayed: 25,
-          totalWins: 15,
-          totalScore: 45000
+          accountType: 'PREMIUM',
+          emailVerified: true,
+          level: 99,
+          xp: 99999,
+          totalGamesPlayed: 100,
+          totalWins: 85,
+          totalScore: 999999,
+          hasCompletedSetup: true
         }
       }),
+      // Utente Premium
       prisma.user.create({
         data: {
-          email: 'test@brainbrawler.com',
-          username: 'testuser',
-          displayName: 'Test Player',
+          email: 'premium@brainbrawler.com',
+          username: 'premiumuser',
+          displayName: 'Premium Player',
+          passwordHash: await bcrypt.hash('premium123', 12),
+          accountType: 'PREMIUM',
+          emailVerified: true,
+          level: 15,
+          xp: 12500,
+          totalGamesPlayed: 50,
+          totalWins: 32,
+          totalScore: 125000,
+          hasCompletedSetup: true
+        }
+      }),
+      // Utente Free Test 1
+      prisma.user.create({
+        data: {
+          email: 'test1@brainbrawler.com',
+          username: 'testfree1',
+          displayName: 'Free Player 1',
           passwordHash: await bcrypt.hash('test123', 12),
-          level: 3,
-          xp: 2800,
-          totalGamesPlayed: 12,
-          totalWins: 7,
-          totalScore: 28000
+          accountType: 'FREE',
+          emailVerified: true,
+          level: 5,
+          xp: 2500,
+          totalGamesPlayed: 15,
+          totalWins: 8,
+          totalScore: 25000,
+          hasCompletedSetup: true
         }
       }),
+      // Utente Free Test 2
       prisma.user.create({
         data: {
-          email: 'player@brainbrawler.com',
-          username: 'player1',
-          displayName: 'Quiz Master',
-          passwordHash: await bcrypt.hash('player123', 12),
-          level: 8,
-          xp: 7200,
-          totalGamesPlayed: 40,
-          totalWins: 28,
-          totalScore: 72000
+          email: 'test2@brainbrawler.com',
+          username: 'testfree2',
+          displayName: 'Free Player 2',
+          passwordHash: await bcrypt.hash('test456', 12),
+          accountType: 'FREE',
+          emailVerified: true,
+          level: 3,
+          xp: 1800,
+          totalGamesPlayed: 8,
+          totalWins: 3,
+          totalScore: 18000,
+          hasCompletedSetup: true
         }
       })
     ]);
@@ -593,10 +618,11 @@ async function main() {
     console.log(`   • ${achievements.length} achievements`);
     console.log(`   • ${users.length} demo users`);
 
-    console.log('\n🎮 Demo credentials:');
-    console.log('   • Email: admin@brainbrawler.com, Password: admin123');
-    console.log('   • Email: test@brainbrawler.com, Password: test123');
-    console.log('   • Email: player@brainbrawler.com, Password: player123');
+    console.log('\n🎮 Test credentials:');
+    console.log('   🛡️  ADMIN: admin@brainbrawler.com / admin123 (Level 99, Super powers)');
+    console.log('   💎 PREMIUM: premium@brainbrawler.com / premium123 (Level 15, Ad-free)');
+    console.log('   🆓 FREE 1: test1@brainbrawler.com / test123 (Level 5, With ads)');
+    console.log('   🆓 FREE 2: test2@brainbrawler.com / test456 (Level 3, With ads)');
 
   } catch (error) {
     console.error('❌ Seed failed:', error);
