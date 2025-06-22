@@ -5,7 +5,7 @@ class EmailService {
     this.fromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@brainbrawler.com';
     this.smtpHost = process.env.SMTP_HOST || '10.40.19.34';
     this.smtpPort = process.env.SMTP_PORT || 25;
-    this.isConfigured = Boolean(process.env.SMTP_HOST || true); // Always true for simple SMTP
+    this.isConfigured = Boolean(process.env.SMTP_HOST || false); // Force console mode for development
     
     // Configura nodemailer per SMTP semplice
     this.transporter = nodemailer.createTransport({
@@ -93,9 +93,6 @@ class EmailService {
         `
       };
 
-      // Always log verification code in development
-      console.log(`🔐 VERIFICATION CODE for ${email}: ${code}`);
-      
       // Prova prima a inviare via SMTP
       try {
         await this.transporter.sendMail(mailOptions);

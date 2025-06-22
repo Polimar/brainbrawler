@@ -495,9 +495,6 @@ router.get('/profile', authenticateToken, async (req, res) => {
         totalGamesPlayed: true,
         totalWins: true,
         totalScore: true,
-        emailVerified: true,
-        accountType: true,
-        hasCompletedSetup: true,
         createdAt: true,
         lastLoginAt: true
       }
@@ -545,9 +542,6 @@ router.put('/profile', authenticateToken, async (req, res) => {
         totalGamesPlayed: true,
         totalWins: true,
         totalScore: true,
-        emailVerified: true,
-        accountType: true,
-        hasCompletedSetup: true,
         createdAt: true,
         lastLoginAt: true
       }
@@ -686,6 +680,69 @@ router.post('/update-account-type', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Account type update error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// DEBUG: Get verification code (ONLY for development)
+router.get('/debug/verification-code/:email', async (req, res) => {
+  try {
+    // SECURITY: Only enable in development
+    if (process.env.NODE_ENV === 'production') {
+      return res.status(404).json({ error: 'Not found' });
+    }
+
+    const { email } = req.params;
+    
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+      select: {
+        email: true,
+        emailVerificationCode: true,
+        emailVerificationExpires: true,
+        emailVerified: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (user.emailVerified) {
+      return res.json({ 
+        message: 'Email already verified',
+        verified: true 
+      });
+    }
+
+    if (!user.emailVerificationCode) {
+      return res.json({ 
+        message: 'No verification code found',
+        code: null 
+      });
+    }
+
+    if (user.emailVerificationExpires && user.emailVerificationExpires < new Date()) {
+      return res.json({ 
+        message: 'Verification code expired',
+        code: user.emailVerificationCode,
+        expired: true 
+      });
+    }
+
+    res.json({
+      message: 'Current verification code',
+      email: user.email,
+      code: user.emailVerificationCode,
+      expires: user.emailVerificationExpires
+    });
+
+  } catch (error) {
+    console.error('Debug verification code error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

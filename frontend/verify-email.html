@@ -245,6 +245,16 @@
             Loading...
         </div>
 
+        <!-- Development Debug Info -->
+        <div id="debugInfo" style="background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;">
+            <p style="margin: 0 0 10px 0; color: #856404; font-weight: 600;">🔧 Development Mode</p>
+            <p style="margin: 0; color: #856404; font-size: 14px;">If you don't receive the email, check the server console logs.</p>
+            <button onclick="getDebugCode()" style="background: #ffc107; color: #856404; border: none; padding: 8px 15px; border-radius: 6px; font-size: 12px; margin-top: 10px; cursor: pointer;">
+                Get Verification Code
+            </button>
+            <div id="debugCodeDisplay" style="margin-top: 10px; font-family: monospace; font-size: 18px; font-weight: bold; color: #856404;"></div>
+        </div>
+
         <form id="verificationForm" onsubmit="handleVerification(event)">
             <div class="code-input-group">
                 <input type="text" class="code-digit" maxlength="1" id="digit1" onkeyup="moveToNext(this, 'digit2')" onkeydown="moveToPrev(this, null)">
@@ -533,6 +543,38 @@
                 checkFormComplete();
             }
         });
+
+        // DEBUG: Get verification code (development only)
+        async function getDebugCode() {
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/debug/verification-code/${encodeURIComponent(userEmail)}`);
+                const data = await response.json();
+                
+                const debugDisplay = document.getElementById('debugCodeDisplay');
+                
+                if (response.ok) {
+                    if (data.code) {
+                        debugDisplay.innerHTML = `Code: <span style="background: #fff; padding: 5px 10px; border-radius: 4px; border: 1px solid #ddd;">${data.code}</span>`;
+                        
+                        // Auto-fill the code
+                        const code = data.code;
+                        clearInputs();
+                        for (let i = 0; i < 6 && i < code.length; i++) {
+                            document.getElementById(`digit${i + 1}`).value = code[i];
+                        }
+                        checkFormComplete();
+                        document.getElementById('digit6').focus();
+                    } else {
+                        debugDisplay.textContent = data.message || 'No code available';
+                    }
+                } else {
+                    debugDisplay.textContent = 'Debug endpoint not available';
+                }
+            } catch (error) {
+                document.getElementById('debugCodeDisplay').textContent = 'Error getting debug code';
+                console.error('Debug code error:', error);
+            }
+        }
     </script>
 </body>
 </html> 
