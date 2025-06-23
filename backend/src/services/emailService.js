@@ -5,7 +5,7 @@ class EmailService {
     this.fromEmail = process.env.SMTP_FROM_EMAIL || 'noreply@brainbrawler.com';
     this.smtpHost = process.env.SMTP_HOST || '10.40.19.34';
     this.smtpPort = process.env.SMTP_PORT || 25;
-    this.isConfigured = Boolean(process.env.SMTP_HOST || false); // Force console mode for development
+    this.isConfigured = true; // Enable SMTP with default config
     
     // Configura nodemailer per SMTP semplice
     this.transporter = nodemailer.createTransport({
@@ -93,13 +93,24 @@ class EmailService {
         `
       };
 
+      // Log verification code always
+      console.log(`🔐 VERIFICATION CODE for ${email}: ${code}`);
+      console.log(`📮 Attempting to send email via SMTP to ${this.smtpHost}:${this.smtpPort}`);
+      
       // Prova prima a inviare via SMTP
       try {
-        await this.transporter.sendMail(mailOptions);
+        const info = await this.transporter.sendMail(mailOptions);
         console.log(`✅ Verification email sent via SMTP to ${email}`);
-        return { success: true, method: 'smtp' };
+        console.log(`📬 SMTP Response:`, info);
+        return { success: true, method: 'smtp', messageId: info.messageId };
       } catch (smtpError) {
-        console.log(`⚠️  SMTP failed: ${smtpError.message}`);
+        console.error(`⚠️  SMTP failed for ${email}:`, {
+          error: smtpError.message,
+          code: smtpError.code,
+          command: smtpError.command,
+          host: this.smtpHost,
+          port: this.smtpPort
+        });
         
         // Fallback to console logging
         console.log(`📧 EMAIL FALLBACK - Verification code for ${email}: ${code}`);
@@ -236,7 +247,7 @@ class EmailService {
   }
 
   // Controlla se SMTP è configurato
-  isConfigured() {
+  checkIfConfigured() {
     return this.isConfigured;
   }
 
