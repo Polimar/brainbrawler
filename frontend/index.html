@@ -847,9 +847,12 @@
                     // Check if user needs email verification
                     if (data.user.emailVerified === false) {
                         window.location.href = 'verify-email.html';
-                    } else {
-                        // Always go to account setup for new users to choose plan
+                    } else if (!data.user.hasCompletedSetup) {
+                        // New users need account setup to choose plan
                         window.location.href = 'account-setup.html';
+                    } else {
+                        // Existing users go directly to lobby
+                        window.location.href = 'lobby.html';
                     }
                 } else {
                     setValidationMessage(
@@ -939,7 +942,13 @@
                 if (result.ok) {
                     localStorage.setItem('brainbrawler_token', data.token);
                     localStorage.setItem('brainbrawler_user', JSON.stringify(data.user));
-                    window.location.href = 'lobby.html';
+                    
+                    // Google users: check if they need account setup
+                    if (!data.user.hasCompletedSetup) {
+                        window.location.href = 'account-setup.html';
+                    } else {
+                        window.location.href = 'lobby.html';
+                    }
                 } else {
                     alert('Google login failed: ' + data.error);
                 }

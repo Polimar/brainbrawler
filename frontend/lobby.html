@@ -119,9 +119,176 @@
             margin: 40px auto;
             padding: 0 20px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 2fr 1fr;
             gap: 40px;
             align-items: start;
+        }
+
+        /* Advertisement Styles for FREE users */
+        .ad-banner {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px auto;
+            max-width: 1200px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .ad-banner.show {
+            display: block;
+        }
+
+        .ad-banner-top {
+            margin-top: 0;
+        }
+
+        .ad-placeholder {
+            background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .ad-placeholder .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .ad-disclaimer {
+            margin-top: 10px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        /* Native Ad Sidebar for FREE users */
+        .native-ad {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 30px;
+        }
+
+        .native-ad.show {
+            display: block;
+        }
+
+        .native-ad h3 {
+            color: #ff8f00;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .native-ad-content {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+
+        .native-ad-cta {
+            background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s ease;
+        }
+
+        .native-ad-cta:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Premium Notice for PREMIUM users */
+        .premium-notice {
+            display: none;
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 1200px;
+            text-align: center;
+            border-radius: 15px;
+            font-weight: 600;
+            box-shadow: 0 8px 32px rgba(40, 167, 69, 0.2);
+        }
+
+        .premium-notice.show {
+            display: block;
+        }
+
+        /* Upgrade Card for FREE users */
+        .upgrade-card {
+            background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 40px rgba(255, 193, 7, 0.3);
+        }
+
+        .upgrade-card h3 {
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        .upgrade-card .price {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 15px 0;
+        }
+
+        .upgrade-card .price small {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+
+        .upgrade-card ul {
+            list-style: none;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .upgrade-card li {
+            padding: 5px 0;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .upgrade-card li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .upgrade-btn {
+            background: white;
+            color: #ff8f00;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1.1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        .upgrade-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
         }
 
         .section-card {
@@ -481,7 +648,7 @@
             <div class="icon">📢</div>
             <div><strong>Advertisement Space</strong></div>
             <div>728x90 Banner / Google AdSense</div>
-            <div class="ad-disclaimer">This ad helps keep BrainBrawler free for everyone</div>
+            <div class="ad-disclaimer">Ads help keep BrainBrawler free for everyone</div>
         </div>
     </div>
 
@@ -550,16 +717,14 @@
                 </ul>
 
                 <!-- Native Advertisement (Google AdMob) -->
-                <div class="ad-banner ad-banner-sidebar ad-banner-native" id="nativeAdBanner">
-                    <div class="ad-placeholder">
-                        <div class="icon">📱</div>
-                        <div><strong>Native Advertisement</strong></div>
-                        <div>Google AdMob Native Ad</div>
-                        <div style="margin: 10px 0; font-size: 0.8rem;">
-                            Interactive content that matches your interests
-                        </div>
-                        <div class="ad-disclaimer">Sponsored Content • Ad</div>
+                <div class="native-ad" id="nativeAdBanner">
+                    <h3>🎮 Level Up Your Gaming</h3>
+                    <div class="native-ad-content">
+                        Join millions of players in epic quiz battles. Test your knowledge and compete for the top spot!
                     </div>
+                    <button class="native-ad-cta" onclick="window.open('#', '_blank')">
+                        Play Now - Free!
+                    </button>
                 </div>
 
                 <div class="pricing-card">
@@ -647,23 +812,36 @@
             const token = localStorage.getItem('brainbrawler_token');
             const userFromStorage = localStorage.getItem('brainbrawler_user');
             
+            console.log('🔍 DEBUG: Loading user...');
+            console.log('🔍 DEBUG: Token exists:', !!token);
+            console.log('🔍 DEBUG: User data exists:', !!userFromStorage);
+            
             if (!token || !userFromStorage) {
+                console.log('❌ DEBUG: Missing token or user data, redirecting to login');
                 window.location.href = 'index.html';
                 return;
             }
 
             try {
                 currentUser = JSON.parse(userFromStorage);
+                console.log('✅ DEBUG: User data loaded from storage:', currentUser);
                 
-                // Update UI with user data
+                // Update UI with user data immediately
                 updateUserDisplay();
                 
                 // Verify token is still valid
+                console.log('🔍 DEBUG: Verifying token...');
                 const response = await fetch(`${API_BASE}/api/auth/profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
+                console.log('🔍 DEBUG: Profile response status:', response.status);
+                
                 if (!response.ok) {
+                    console.log('❌ DEBUG: Token verification failed, status:', response.status);
+                    const errorText = await response.text();
+                    console.log('❌ DEBUG: Error response:', errorText);
+                    
                     // Token invalid, redirect to login
                     localStorage.removeItem('brainbrawler_token');
                     localStorage.removeItem('brainbrawler_user');
@@ -672,12 +850,15 @@
                 }
                 
                 const userData = await response.json();
+                console.log('✅ DEBUG: Fresh user data from server:', userData);
+                
                 currentUser = userData.user;
                 localStorage.setItem('brainbrawler_user', JSON.stringify(currentUser));
                 updateUserDisplay();
                 
             } catch (error) {
-                console.error('Error loading user:', error);
+                console.error('❌ DEBUG: Error loading user:', error);
+                console.error('❌ DEBUG: Error stack:', error.stack);
                 window.location.href = 'index.html';
             }
         }
@@ -919,8 +1100,14 @@
 
         // Upgrade to premium
         function upgradeToPremium() {
-            // TODO: Implement payment processing
-            alert('Payment processing will be implemented soon!\n\nFor now, this is a demonstration of the freemium model.');
+            window.location.href = 'account-setup.html';
+        }
+
+        // View achievements
+        function viewAchievements() {
+            // For now, redirect to statistics page
+            alert('Achievements feature coming soon! 🏆\n\nFor now, check your detailed statistics.');
+            viewStatistics();
         }
 
         // Logout

@@ -35,7 +35,10 @@ const authMiddleware = async (socket, next) => {
         xp: true,
         totalGamesPlayed: true,
         totalWins: true,
-        totalScore: true
+        totalScore: true,
+        emailVerified: true,
+        accountType: true,
+        hasCompletedSetup: true
       }
     });
 
@@ -84,7 +87,10 @@ const authenticateToken = async (req, res, next) => {
         xp: true,
         totalGamesPlayed: true,
         totalWins: true,
-        totalScore: true
+        totalScore: true,
+        emailVerified: true,
+        accountType: true,
+        hasCompletedSetup: true
       }
     });
 

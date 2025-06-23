@@ -27,7 +27,7 @@
             backdrop-filter: blur(10px);
             border-radius: 20px;
             padding: 40px;
-            max-width: 600px;
+            max-width: 700px;
             width: 100%;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
@@ -48,9 +48,9 @@
             display: inline-block;
             background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
             color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
             font-weight: 600;
             margin-bottom: 20px;
         }
@@ -84,9 +84,53 @@
             border-color: #667eea;
         }
 
+        .input-container {
+            position: relative;
+        }
+
+        .input-container .validation-icon {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+        }
+
+        .validation-icon.checking {
+            color: #ed8936;
+        }
+
+        .validation-icon.available {
+            color: #48bb78;
+        }
+
+        .validation-icon.unavailable {
+            color: #f56565;
+        }
+
+        .validation-message {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            padding: 5px 0;
+        }
+
+        .validation-message.available {
+            color: #48bb78;
+        }
+
+        .validation-message.unavailable {
+            color: #f56565;
+        }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 20px;
         }
 
@@ -100,6 +144,21 @@
         .checkbox-group input[type="checkbox"] {
             width: auto;
             margin: 0;
+        }
+
+        .question-set-info {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .question-set-info .flag {
+            font-size: 1.1rem;
+            margin-right: 5px;
         }
 
         .btn {
@@ -120,6 +179,13 @@
             transform: translateY(-2px);
         }
 
+        .btn:disabled {
+            background: #cbd5e0;
+            color: #718096;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         .btn-secondary {
             background: #718096;
             margin-right: 10px;
@@ -135,10 +201,40 @@
         .error-message {
             background: #fed7d7;
             color: #c53030;
-            padding: 10px 15px;
+            padding: 12px 15px;
             border-radius: 8px;
             margin-bottom: 15px;
             display: none;
+        }
+
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
@@ -146,7 +242,7 @@
                 padding: 20px;
             }
             
-            .form-row {
+            .form-row, .form-row-3 {
                 grid-template-columns: 1fr;
             }
             
@@ -173,141 +269,392 @@
         </div>
 
         <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
 
         <form id="createRoomForm">
             <div class="form-group">
                 <label for="roomName">Room Name</label>
-                <input type="text" id="roomName" name="roomName" placeholder="Enter room name" required>
+                <div class="input-container">
+                    <input type="text" id="roomName" name="roomName" placeholder="Enter unique room name" required>
+                    <i class="validation-icon" id="roomNameValidation"></i>
+                </div>
+                <div class="validation-message" id="roomNameMessage"></div>
             </div>
 
             <div class="form-row">
+                <div class="form-group">
+                    <label for="roomLanguage">Room Language</label>
+                    <select id="roomLanguage" name="roomLanguage" required>
+                        <option value="IT">🇮🇹 Italian</option>
+                        <option value="EN" selected>🇺🇸 English</option>
+                        <option value="ES">🇪🇸 Spanish</option>
+                        <option value="DE">🇩🇪 German</option>
+                        <option value="FR">🇫🇷 French</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="maxPlayers">Max Players</label>
                     <select id="maxPlayers" name="maxPlayers" required>
                         <option value="2">2 Players</option>
+                        <option value="3">3 Players</option>
                         <option value="4" selected>4 Players</option>
+                        <option value="5">5 Players</option>
                         <option value="6">6 Players</option>
+                        <option value="7">7 Players</option>
                         <option value="8">8 Players</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="questionTime">Time per Question</label>
-                    <select id="questionTime" name="questionTime" required>
-                        <option value="15">15 seconds</option>
-                        <option value="30" selected>30 seconds</option>
-                        <option value="45">45 seconds</option>
-                        <option value="60">60 seconds</option>
+                        <option value="9">9 Players</option>
+                        <option value="10">10 Players</option>
                     </select>
                 </div>
             </div>
 
             <div class="form-row">
+                <div class="form-group">
+                    <label for="questionTime">Time per Question</label>
+                    <select id="questionTime" name="questionTime" required>
+                        <option value="5">5 seconds</option>
+                        <option value="10" selected>10 seconds</option>
+                        <option value="15">15 seconds</option>
+                        <option value="20">20 seconds</option>
+                    </select>
+                </div>
+
                 <div class="form-group">
                     <label for="totalQuestions">Total Questions</label>
                     <select id="totalQuestions" name="totalQuestions" required>
                         <option value="5">5 Questions</option>
                         <option value="10" selected>10 Questions</option>
-                        <option value="15">15 Questions</option>
-                        <option value="20">20 Questions</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select id="category" name="category" required>
-                        <option value="">Select Category</option>
+                        <option value="25">25 Questions</option>
+                        <option value="100">100 Questions</option>
                     </select>
                 </div>
             </div>
 
             <div class="form-group">
-                <div class="checkbox-group">
-                    <input type="checkbox" id="isPrivate" name="isPrivate">
-                    <label for="isPrivate">Private Room (Password Protected)</label>
+                <label for="questionSet">Question Set</label>
+                <select id="questionSet" name="questionSetId" required>
+                    <option value="">Select your question set</option>
+                </select>
+                <div class="question-set-info" id="questionSetInfo" style="display: none;">
+                    <div id="questionSetDetails"></div>
                 </div>
-                <div class="checkbox-group" id="passwordGroup" style="display: none; margin-top: 10px;">
-                    <input type="password" id="password" name="password" placeholder="Room password" style="width: 100%;">
-                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="isPrivate" name="isPrivate">
+                <label for="isPrivate">Private Room (requires password)</label>
+            </div>
+
+            <div class="form-group" id="passwordGroup" style="display: none;">
+                <label for="password">Room Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter room password">
             </div>
 
             <div class="button-group">
                 <button type="button" class="btn btn-secondary" onclick="goBack()">
-                    <i class="fas fa-arrow-left"></i> Back
+                    <i class="fas fa-arrow-left"></i> Back to Lobby
                 </button>
-                <button type="submit" class="btn">
-                    <i class="fas fa-play"></i> Create Room
+                <button type="submit" class="btn" id="createRoomBtn">
+                    <i class="fas fa-plus"></i> Create Room
                 </button>
             </div>
         </form>
     </div>
 
     <script>
+        // Configuration
+        const API_BASE = `http://${window.location.hostname}:3000`;
+        
+        let currentUser = null;
+        let questionSets = [];
+        let roomNameCheckTimeout = null;
+
+        // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             checkPremiumAccess();
-            loadCategories();
+            loadQuestionSets();
             setupEventListeners();
         });
 
         function checkPremiumAccess() {
-            const user = JSON.parse(localStorage.getItem('brainbrawler_user') || '{}');
-            if (!user.token || (user.accountType !== 'PREMIUM' && user.accountType !== 'ADMIN')) {
+            const token = localStorage.getItem('brainbrawler_token');
+            const userFromStorage = localStorage.getItem('brainbrawler_user');
+            
+            if (!token || !userFromStorage) {
+                alert('Please login first to access this feature.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = JSON.parse(userFromStorage);
+            
+            if (user.accountType !== 'PREMIUM' && user.accountType !== 'ADMIN') {
                 alert('This feature requires a Premium account! Upgrade now to create custom rooms.');
                 window.location.href = 'lobby.html';
                 return;
             }
+            
+            currentUser = user;
         }
 
         function setupEventListeners() {
-            document.getElementById('isPrivate').addEventListener('change', function() {
-                const passwordGroup = document.getElementById('passwordGroup');
-                passwordGroup.style.display = this.checked ? 'block' : 'none';
-            });
-
-            document.getElementById('createRoomForm').addEventListener('submit', handleSubmit);
+            // Room name validation
+            document.getElementById('roomName').addEventListener('input', handleRoomNameInput);
+            
+            // Room language change
+            document.getElementById('roomLanguage').addEventListener('change', filterQuestionSets);
+            
+            // Question set selection
+            document.getElementById('questionSet').addEventListener('change', handleQuestionSetChange);
+            
+            // Private room toggle
+            document.getElementById('isPrivate').addEventListener('change', togglePasswordField);
+            
+            // Form submission
+            document.getElementById('createRoomForm').addEventListener('submit', handleCreateRoom);
         }
 
-        async function loadCategories() {
+        async function loadQuestionSets() {
             try {
-                const response = await fetch(`http://${window.location.hostname}:3000/api/game/categories`);
+                const token = localStorage.getItem('brainbrawler_token');
+                const response = await fetch(`${API_BASE}/api/questions/sets`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
                 const data = await response.json();
                 
-                if (data.categories) {
-                    const categorySelect = document.getElementById('category');
-                    data.categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category.id;
-                        option.textContent = `${category.icon} ${category.name}`;
-                        categorySelect.appendChild(option);
-                    });
+                if (data.success) {
+                    questionSets = data.questionSets;
+                    populateQuestionSets();
+                } else {
+                    showError('Failed to load question sets');
                 }
             } catch (error) {
-                console.error('Failed to load categories:', error);
+                console.error('Failed to load question sets:', error);
+                showError('Network error loading question sets');
             }
         }
 
-        async function handleSubmit(e) {
+        function populateQuestionSets() {
+            const select = document.getElementById('questionSet');
+            const selectedLanguage = document.getElementById('roomLanguage').value;
+            
+            // Clear existing options except first
+            const firstOption = select.querySelector('option');
+            select.innerHTML = '';
+            select.appendChild(firstOption);
+            
+            // Filter by language and add options
+            const filteredSets = questionSets.filter(set => set.language === selectedLanguage);
+            
+            if (filteredSets.length === 0) {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No question sets available for this language';
+                option.disabled = true;
+                select.appendChild(option);
+                return;
+            }
+            
+            filteredSets.forEach(set => {
+                const option = document.createElement('option');
+                option.value = set.id;
+                option.textContent = `${set.name} (${set.questionCount || 0} questions)`;
+                option.dataset.language = set.language;
+                option.dataset.category = set.category;
+                option.dataset.description = set.description;
+                option.dataset.questionCount = set.questionCount || 0;
+                select.appendChild(option);
+            });
+        }
+
+        function filterQuestionSets() {
+            populateQuestionSets();
+            document.getElementById('questionSet').value = '';
+            hideQuestionSetInfo();
+        }
+
+        function handleRoomNameInput(e) {
+            const roomName = e.target.value.trim();
+            
+            // Clear previous timeout
+            if (roomNameCheckTimeout) {
+                clearTimeout(roomNameCheckTimeout);
+            }
+            
+            if (roomName.length < 3) {
+                showRoomNameValidation('', 'Room name must be at least 3 characters');
+                return;
+            }
+            
+            // Show checking state
+            showRoomNameValidation('checking', 'Checking availability...');
+            
+            // Debounce the check
+            roomNameCheckTimeout = setTimeout(() => {
+                checkRoomNameAvailability(roomName);
+            }, 500);
+        }
+
+        async function checkRoomNameAvailability(roomName) {
+            try {
+                const response = await fetch(`${API_BASE}/api/game/check-room-name?name=${encodeURIComponent(roomName)}`);
+                const data = await response.json();
+                
+                if (data.available) {
+                    showRoomNameValidation('available', '✓ Room name is available');
+                } else {
+                    showRoomNameValidation('unavailable', '✗ Room name is already taken');
+                }
+            } catch (error) {
+                console.error('Error checking room name:', error);
+                showRoomNameValidation('', 'Error checking availability');
+            }
+        }
+
+        function showRoomNameValidation(status, message) {
+            const icon = document.getElementById('roomNameValidation');
+            const messageEl = document.getElementById('roomNameMessage');
+            const submitBtn = document.getElementById('createRoomBtn');
+            
+            // Update icon
+            icon.className = 'validation-icon';
+            if (status) {
+                icon.className += ' ' + status;
+                
+                switch(status) {
+                    case 'checking':
+                        icon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                        break;
+                    case 'available':
+                        icon.innerHTML = '<i class="fas fa-check"></i>';
+                        break;
+                    case 'unavailable':
+                        icon.innerHTML = '<i class="fas fa-times"></i>';
+                        break;
+                }
+            } else {
+                icon.innerHTML = '';
+            }
+            
+            // Update message
+            messageEl.textContent = message;
+            messageEl.className = 'validation-message';
+            if (status && status !== 'checking') {
+                messageEl.className += ' ' + status;
+            }
+            
+            // Update submit button
+            submitBtn.disabled = status === 'unavailable' || status === 'checking' || !status;
+        }
+
+        function handleQuestionSetChange(e) {
+            const selectedOption = e.target.selectedOptions[0];
+            
+            if (!selectedOption.value) {
+                hideQuestionSetInfo();
+                return;
+            }
+            
+            showQuestionSetInfo(selectedOption);
+        }
+
+        function showQuestionSetInfo(option) {
+            const infoContainer = document.getElementById('questionSetInfo');
+            const detailsContainer = document.getElementById('questionSetDetails');
+            
+            const language = option.dataset.language;
+            const category = option.dataset.category;
+            const description = option.dataset.description;
+            const questionCount = option.dataset.questionCount;
+            
+            detailsContainer.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <strong>${getFlagEmoji(language)} ${option.textContent}</strong>
+                    <span style="background: #e2e8f0; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem;">
+                        ${category}
+                    </span>
+                </div>
+                ${description ? `<p style="margin-bottom: 8px;">${description}</p>` : ''}
+                <div style="font-size: 0.8rem; color: #718096;">
+                    <i class="fas fa-question-circle"></i> ${questionCount} questions available
+                    <span style="margin-left: 15px;">
+                        <i class="fas fa-language"></i> ${getLanguageName(language)}
+                    </span>
+                </div>
+            `;
+            
+            infoContainer.style.display = 'block';
+        }
+
+        function hideQuestionSetInfo() {
+            document.getElementById('questionSetInfo').style.display = 'none';
+        }
+
+        function togglePasswordField() {
+            const isPrivate = document.getElementById('isPrivate').checked;
+            const passwordGroup = document.getElementById('passwordGroup');
+            const passwordInput = document.getElementById('password');
+            
+            if (isPrivate) {
+                passwordGroup.style.display = 'block';
+                passwordInput.required = true;
+            } else {
+                passwordGroup.style.display = 'none';
+                passwordInput.required = false;
+                passwordInput.value = '';
+            }
+        }
+
+        async function handleCreateRoom(e) {
             e.preventDefault();
             
             const formData = new FormData(e.target);
+            const roomName = formData.get('roomName').trim();
+            
+            // Validate room name availability
+            const nameValidation = document.getElementById('roomNameValidation');
+            if (!nameValidation.classList.contains('available')) {
+                showError('Please choose an available room name');
+                return;
+            }
+            
+            // Validate question set selection
+            const questionSetId = formData.get('questionSetId');
+            if (!questionSetId) {
+                showError('Please select a question set');
+                return;
+            }
+            
+            // Validate password if private
+            const isPrivate = formData.get('isPrivate') === 'on';
+            const password = formData.get('password');
+            if (isPrivate && !password) {
+                showError('Please enter a password for private room');
+                return;
+            }
+            
             const roomData = {
-                name: formData.get('roomName'),
+                name: roomName,
+                language: formData.get('roomLanguage'),
                 maxPlayers: parseInt(formData.get('maxPlayers')),
                 questionTime: parseInt(formData.get('questionTime')),
                 totalQuestions: parseInt(formData.get('totalQuestions')),
-                category: formData.get('category'),
-                isPrivate: formData.get('isPrivate') === 'on',
-                password: formData.get('password') || null
+                questionSetId: questionSetId,
+                isPrivate: isPrivate,
+                password: password || null
             };
 
+            setLoading(true);
+            
             try {
-                const user = JSON.parse(localStorage.getItem('brainbrawler_user'));
-                
-                const response = await fetch(`http://${window.location.hostname}:3000/api/game/create-room`, {
+                const token = localStorage.getItem('brainbrawler_token');
+                const response = await fetch(`${API_BASE}/api/game/create-room`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${user.token}`
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(roomData)
                 });
@@ -315,23 +662,79 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    window.location.href = `game.html?room=${data.roomCode}`;
+                    showSuccess('Room created successfully! Redirecting...');
+                    setTimeout(() => {
+                        window.location.href = `game.html?roomId=${data.roomId}`;
+                    }, 1500);
                 } else {
                     showError(data.message || 'Failed to create room');
                 }
             } catch (error) {
                 console.error('Failed to create room:', error);
                 showError('Network error. Please try again.');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        // Utility functions
+        function setLoading(isLoading) {
+            const form = document.getElementById('createRoomForm');
+            const submitBtn = document.getElementById('createRoomBtn');
+            
+            if (isLoading) {
+                form.classList.add('loading');
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Room...';
+                submitBtn.disabled = true;
+            } else {
+                form.classList.remove('loading');
+                submitBtn.innerHTML = '<i class="fas fa-plus"></i> Create Room';
+                submitBtn.disabled = false;
             }
         }
 
         function showError(message) {
-            const errorElement = document.getElementById('errorMessage');
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
+            const errorEl = document.getElementById('errorMessage');
+            const successEl = document.getElementById('successMessage');
+            
+            successEl.style.display = 'none';
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            
             setTimeout(() => {
-                errorElement.style.display = 'none';
+                errorEl.style.display = 'none';
             }, 5000);
+        }
+
+        function showSuccess(message) {
+            const errorEl = document.getElementById('errorMessage');
+            const successEl = document.getElementById('successMessage');
+            
+            errorEl.style.display = 'none';
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+        }
+
+        function getFlagEmoji(language) {
+            const flags = {
+                'IT': '🇮🇹',
+                'EN': '🇺🇸',
+                'ES': '🇪🇸',
+                'DE': '🇩🇪',
+                'FR': '🇫🇷'
+            };
+            return flags[language] || '🌐';
+        }
+
+        function getLanguageName(language) {
+            const names = {
+                'IT': 'Italian',
+                'EN': 'English',
+                'ES': 'Spanish',
+                'DE': 'German',
+                'FR': 'French'
+            };
+            return names[language] || language;
         }
 
         function goBack() {
@@ -339,5 +742,4 @@
         }
     </script>
 </body>
-</html> 
 </html> 

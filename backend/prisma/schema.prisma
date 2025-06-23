@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,169 +8,166 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  username        String    @unique
-  displayName     String
-  googleId        String?   @unique
-  avatar          String?
-  passwordHash    String?
-  emailVerified   Boolean   @default(false)
-  emailVerificationCode String?
+  id                       String            @id @default(cuid())
+  email                    String            @unique
+  username                 String            @unique
+  displayName              String
+  googleId                 String?           @unique
+  avatar                   String?
+  passwordHash             String?
+  totalGamesPlayed         Int               @default(0)
+  totalWins                Int               @default(0)
+  totalScore               Int               @default(0)
+  level                    Int               @default(1)
+  xp                       Int               @default(0)
+  lastLoginAt              DateTime?
+  createdAt                DateTime          @default(now())
+  updatedAt                DateTime          @updatedAt
+  accountType              AccountType       @default(FREE)
+  emailVerificationCode    String?
   emailVerificationExpires DateTime?
-  accountType     AccountType @default(FREE)
-  hasCompletedSetup Boolean @default(false)
-  totalGamesPlayed Int      @default(0)
-  totalWins       Int       @default(0)
-  totalScore      Int       @default(0)
-  level           Int       @default(1)
-  xp              Int       @default(0)
-  lastLoginAt     DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  gameResults     GameResult[]
-  createdGames    Game[]    @relation("GameCreator")
-  achievements    UserAchievement[]
-  friendships     Friendship[] @relation("FriendshipFrom")
-  friendsOf       Friendship[] @relation("FriendshipTo")
-  
+  emailVerified            Boolean           @default(false)
+  hasCompletedSetup        Boolean           @default(false)
+  friendships              Friendship[]      @relation("FriendshipFrom")
+  friendsOf                Friendship[]      @relation("FriendshipTo")
+  gameResults              GameResult[]
+  createdGames             Game[]            @relation("GameCreator")
+  achievements             UserAchievement[]
+
   @@map("users")
 }
 
 model Category {
   id          String     @id @default(cuid())
   name        String     @unique
-  description String?
   icon        String?
   color       String?
+  description String?
   isActive    Boolean    @default(true)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @default(now()) @updatedAt
-  
   questions   Question[]
-  
+
   @@map("categories")
 }
 
 model Question {
-  id            String     @id @default(cuid())
+  id            String            @id @default(cuid())
   text          String
-  options       String[]   // Array di 4 opzioni
-  correctAnswer Int        // Indice risposta corretta (0-3)
+  options       String[]
+  correctAnswer Int
   categoryId    String
-  category      Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   difficulty    Difficulty
   imageUrl      String?
-  explanation   String?    // Spiegazione risposta
-  timeLimit     Int        @default(15) // secondi
-  isActive      Boolean    @default(true)
-  createdBy     String     @default("system") // ID dell'utente che ha creato la domanda
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  
+  explanation   String?
+  timeLimit     Int               @default(15)
+  isActive      Boolean           @default(true)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  createdBy     String            @default("system")
+  language      String            @default("EN")
   questionSets  QuestionSetItem[]
-  
+  category      Category          @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
   @@map("questions")
 }
 
 model QuestionSet {
-  id          String              @id @default(cuid())
+  id          String            @id @default(cuid())
   name        String
   description String?
-  isPublic    Boolean             @default(true)
-  createdBy   String              @default("system")
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-  
-  questions   QuestionSetItem[]
+  isPublic    Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  category    String            @default("General")
+  createdBy   String            @default("system")
+  language    String            @default("EN")
   games       Game[]
-  
+  questions   QuestionSetItem[]
+
   @@map("question_sets")
 }
 
 model QuestionSetItem {
   id            String      @id @default(cuid())
   questionSetId String
-  questionSet   QuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
   questionId    String
-  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
   order         Int
-  
+  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  questionSet   QuestionSet @relation(fields: [questionSetId], references: [id], onDelete: Cascade)
+
   @@unique([questionSetId, questionId])
   @@unique([questionSetId, order])
   @@map("question_set_items")
 }
 
 model Game {
-  id              String        @id @default(cuid())
-  roomCode        String        @unique @default(cuid())
-  name            String?
-  category        String        @default("General")
-  questionTime    Int           @default(30)
-  timePerQuestion Int           @default(30) // Alias per questionTime
-  totalQuestions  Int           @default(10)
-  currentQuestion Int           @default(0)
-  status          GameStatus    @default(WAITING)
-  maxPlayers      Int           @default(4)
-  currentPlayers  Int           @default(0)
-  isPrivate       Boolean       @default(false)
-  password        String?
+  id              String       @id @default(cuid())
+  roomCode        String       @unique @default(cuid())
   questionSetId   String?
-  questionSet     QuestionSet?  @relation(fields: [questionSetId], references: [id])
-  createdBy       String
-  creator         User          @relation("GameCreator", fields: [createdBy], references: [id])
+  status          GameStatus   @default(WAITING)
+  currentQuestion Int          @default(0)
+  maxPlayers      Int          @default(4)
+  timePerQuestion Int          @default(30)
   startedAt       DateTime?
   endedAt         DateTime?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  category        String       @default("General")
+  createdBy       String
+  currentPlayers  Int          @default(0)
+  isPrivate       Boolean      @default(false)
+  name            String?
+  password        String?
+  questionTime    Int          @default(30)
+  totalQuestions  Int          @default(10)
   gameResults     GameResult[]
-  
+  creator         User         @relation("GameCreator", fields: [createdBy], references: [id])
+  questionSet     QuestionSet? @relation(fields: [questionSetId], references: [id])
+
   @@map("games")
 }
 
 model GameResult {
   id              String   @id @default(cuid())
   gameId          String
-  game            Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
   userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   finalScore      Int      @default(0)
   finalRank       Int      @default(0)
   correctAnswers  Int      @default(0)
   totalAnswers    Int      @default(0)
-  avgResponseTime Float    @default(0) // millisecondi
+  avgResponseTime Float    @default(0)
   xpGained        Int      @default(0)
   completedAt     DateTime @default(now())
-  
+  game            Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([gameId, userId])
   @@map("game_results")
 }
 
 model Achievement {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  description String
-  icon        String
-  condition   String    // JSON condition
-  xpReward    Int       @default(0)
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  
+  id               String            @id @default(cuid())
+  name             String            @unique
+  description      String
+  icon             String
+  condition        String
+  xpReward         Int               @default(0)
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
   userAchievements UserAchievement[]
-  
+
   @@map("achievements")
 }
 
 model UserAchievement {
   id            String      @id @default(cuid())
   userId        String
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   achievementId String
-  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
   unlockedAt    DateTime    @default(now())
-  
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([userId, achievementId])
   @@map("user_achievements")
 }
@@ -184,13 +175,13 @@ model UserAchievement {
 model Friendship {
   id         String           @id @default(cuid())
   fromUserId String
-  fromUser   User             @relation("FriendshipFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
   toUserId   String
-  toUser     User             @relation("FriendshipTo", fields: [toUserId], references: [id], onDelete: Cascade)
   status     FriendshipStatus @default(PENDING)
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
-  
+  fromUser   User             @relation("FriendshipFrom", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User             @relation("FriendshipTo", fields: [toUserId], references: [id], onDelete: Cascade)
+
   @@unique([fromUserId, toUserId])
   @@map("friendships")
 }

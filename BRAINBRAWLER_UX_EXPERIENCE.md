@@ -112,7 +112,65 @@ graph TD
 - User profile with stats and achievements
 - Account type badge (FREE/PREMIUM)
 
-### 6. **Game Room** (To be implemented)
+### 6. **Question Management** (`manage-questions.html`)
+**Purpose**: Premium feature for creating and organizing custom questions
+
+#### **Question Sets System**:
+- **Organization**: Questions grouped in sets (10-1000 questions per set)
+- **Multi-language Support**: IT 🇮🇹, EN 🇺🇸, ES 🇪🇸, DE 🇩🇪, FR 🇫🇷
+- **Custom Categories**: Users can create new categories or select existing ones
+- **Bulk Upload**: JSON file import with AI-compatible format
+- **Management Tools**: Create, edit, delete questions and sets
+
+#### **Features**:
+- **Question Sets Tab**: Overview of all user's question collections
+- **Questions Browser**: Searchable list with filters (language, set, category, difficulty)
+- **Single Question Creator**: Form with validation and preview
+- **Bulk Upload**: Drag-and-drop JSON import with template download
+- **Real-time Filtering**: Instant search and filter across all content
+
+#### **JSON Import Format**:
+```json
+{
+  "questionSet": {
+    "name": "General Knowledge Quiz",
+    "description": "A comprehensive quiz covering various topics",
+    "language": "EN",
+    "category": "General"
+  },
+  "questions": [
+    {
+      "text": "What is the capital of France?",
+      "options": ["London", "Berlin", "Paris", "Madrid"],
+      "correctAnswer": 2,
+      "difficulty": "EASY",
+      "category": "Geography", 
+      "explanation": "Paris has been the capital of France since 987 AD."
+    }
+  ]
+}
+```
+
+### 7. **Room Creation** (`create-room.html`)
+**Purpose**: Premium feature for creating custom quiz rooms
+
+#### **Room Configuration**:
+- **Language Selection**: Room language determines available question sets
+- **Live Validation**: Real-time room name availability checking
+- **Player Limits**: 2-10 players maximum
+- **Timing Options**: 5, 10, 15, or 20 seconds per question
+- **Question Count**: 5, 10, 25, or 100 questions per game
+- **Question Set Selection**: Only user's own question sets available
+- **Privacy Options**: Public or password-protected private rooms
+
+#### **Smart Features**:
+- **Language Filtering**: Question sets filtered by selected room language
+- **Availability Check**: Prevents duplicate room names with visual feedback
+- **Question Set Preview**: Displays set details, question count, and category
+- **Form Validation**: Comprehensive checks before room creation
+- **User Isolation**: Each premium user sees only their own question sets
+
+### 8. **Game Room** (To be implemented)
 **Purpose**: Pre-game lobby for participants
 
 #### **FREE User Features**:
@@ -132,48 +190,56 @@ graph TD
 - **FREE**: Small banner ad at bottom of room
 - **PREMIUM**: Clean, ad-free interface
 
-### 7. **Gameplay** (To be implemented)
+### 9. **Gameplay** (To be implemented)
 **Purpose**: Core quiz experience with real-time competition
 
 #### **Game Mechanics**:
-- **Question Display**: 10-30 seconds per question
+- **Question Display**: Configurable time (5, 10, 15, or 20 seconds per question)
 - **Answer Selection**: Multiple choice (A, B, C, D)
 - **Scoring System**: Points based on speed and accuracy
 - **Real-time Updates**: Live leaderboard during game
-- **Power-ups** (PREMIUM): Extra time, 50/50, audience poll
+- **Multi-language Support**: Questions in room's selected language
+- **Flexible Length**: 5, 10, 25, or 100 questions per game
 
 #### **FREE User Experience**:
-- **Interstitial Ads**: Between questions (every 3-5 questions)
+- **Interstitial Ads**: Banner under every question
 - **Standard Question Sets**: Curated categories only
 - **Basic Analytics**: Score and position only
-- **Ad Break**: 5-second ad before final results
+- **Ad Break**: 3-second ad before final results
+- **Join Only**: Can join rooms but not create them
 
 #### **PREMIUM User Experience**:
 - **Uninterrupted Gameplay**: No ads during game
-- **Custom Questions**: Access to user-uploaded content
+- **Custom Questions**: Access to user-uploaded question sets
+- **Room Creation**: Full control over game parameters
+- **Private Rooms**: Password-protected games with friends
 - **Detailed Analytics**: Response time, accuracy trends
-- **Exclusive Categories**: Premium question sets
+- **Multi-language Content**: Create and play in multiple languages
 
 #### **Technical Implementation**:
 - **WebSocket Communication**: Real-time game state
 - **Kafka Event Streaming**: Game events and analytics
 - **Redis Caching**: Fast leaderboard updates
 - **Anti-cheat Measures**: Server-side validation
+- **Question Set Integration**: Dynamic loading from user's custom sets
 
-### 8. **Results & Statistics**
+### 10. **Results & Statistics**
 **Purpose**: Show performance, encourage retention and upgrade
 
 #### **FREE User Features**:
 - **Basic Stats**: Score, rank, correct answers
 - **Banner Ad**: Post-game advertisement
 - **Social Sharing**: Basic score sharing
+- **Language Context**: Results show which language was played
 - **Upgrade Prompt**: "See detailed stats with Premium"
 
 #### **PREMIUM User Features**:
 - **Detailed Analytics**: Response time graphs, accuracy trends
-- **Historical Data**: Performance over time
+- **Historical Data**: Performance over time by question set and language
+- **Question Set Performance**: Analytics per custom question set
 - **Comparison Tools**: vs friends, global averages
-- **Export Data**: CSV/PDF reports
+- **Multi-language Tracking**: Performance across different languages
+- **Export Data**: CSV/PDF reports with question set breakdowns
 
 ---
 
@@ -207,8 +273,8 @@ if (window.admob) {
 #### **Ad Placement Strategy**:
 1. **Lobby**: Top banner (728x90) + Native ad sidebar
 2. **Game Room**: Small banner at bottom
-3. **Gameplay**: Interstitial between questions
-4. **Results**: Full-screen interstitial before stats
+3. **Gameplay**: Small banner at bottom
+4. **Results**: Full-screen interstitial before stats with 3 second countdown
 
 #### **Revenue Optimization**:
 - **Ad Frequency**: Balanced to avoid user annoyance

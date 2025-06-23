@@ -20,7 +20,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -56,6 +56,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 30px;
+            flex-wrap: wrap;
         }
 
         .tab {
@@ -87,36 +88,25 @@
             display: block;
         }
 
-        .action-bar {
+        .filters {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            gap: 15px;
             margin-bottom: 30px;
             flex-wrap: wrap;
-            gap: 15px;
+            align-items: center;
         }
 
-        .search-bar {
-            display: flex;
-            gap: 10px;
-            flex: 1;
-            max-width: 500px;
-        }
-
-        .search-bar input,
-        .search-bar select {
-            padding: 12px 16px;
+        .filter-input, .filter-select {
+            padding: 10px 15px;
             border: 2px solid #e2e8f0;
             border-radius: 10px;
             font-size: 1rem;
+            min-width: 140px;
         }
 
-        .search-bar input {
+        .filter-input {
             flex: 1;
-        }
-
-        .search-bar select {
-            min-width: 120px;
+            min-width: 200px;
         }
 
         .btn {
@@ -138,6 +128,10 @@
             transform: translateY(-2px);
         }
 
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
         .btn-danger {
             background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
         }
@@ -146,81 +140,8 @@
             background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
         }
 
-        .questions-grid {
-            display: grid;
-            gap: 20px;
-        }
-
-        .question-card {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-            border-left: 4px solid #667eea;
-        }
-
-        .question-card.easy {
-            border-left-color: #48bb78;
-        }
-
-        .question-card.medium {
-            border-left-color: #ed8936;
-        }
-
-        .question-card.hard {
-            border-left-color: #f56565;
-        }
-
-        .question-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .question-text {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 10px;
-        }
-
-        .question-meta {
-            display: flex;
-            gap: 15px;
-            font-size: 0.8rem;
-            color: #718096;
-        }
-
-        .question-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .option {
-            padding: 8px 12px;
-            background: #f7fafc;
-            border-radius: 8px;
-            font-size: 0.9rem;
-        }
-
-        .option.correct {
-            background: #c6f6d5;
-            color: #22543d;
-            font-weight: 600;
-        }
-
-        .question-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-
-        .question-actions .btn {
-            padding: 8px 16px;
-            font-size: 0.9rem;
+        .btn-secondary {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
         }
 
         .form-group {
@@ -242,7 +163,6 @@
             border: 2px solid #e2e8f0;
             border-radius: 10px;
             font-size: 1rem;
-            resize: vertical;
         }
 
         .form-group input:focus,
@@ -250,6 +170,18 @@
         .form-group textarea:focus {
             outline: none;
             border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
         }
 
         .options-container {
@@ -272,6 +204,104 @@
             flex: 1;
         }
 
+        .question-set-card, .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #667eea;
+        }
+
+        .question-set-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-set-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .question-set-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 10px;
+        }
+
+        .question-set-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .category-input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .add-category-btn {
+            padding: 10px;
+            background: #e2e8f0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            color: #4a5568;
+        }
+
+        .new-category-input {
+            display: none;
+            flex: 1;
+        }
+
+        .flag-icon {
+            font-size: 1.2rem;
+            margin-right: 8px;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -285,33 +315,17 @@
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 10px;
+            .form-row, .form-row-3 {
+                grid-template-columns: 1fr;
             }
             
-            .header {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .action-bar {
+            .filters {
                 flex-direction: column;
                 align-items: stretch;
             }
             
-            .search-bar {
-                max-width: none;
-            }
-            
-            .question-options {
-                grid-template-columns: 1fr;
-            }
-            
             .tabs {
-                flex-wrap: wrap;
+                justify-content: center;
             }
         }
     </style>
@@ -323,65 +337,123 @@
             <div class="premium-badge">
                 <i class="fas fa-crown"></i> Premium Feature
             </div>
-            <p>Create and manage your custom quiz questions</p>
+            <p>Create and manage your custom quiz questions and question sets</p>
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('my-questions')">
-                <i class="fas fa-list"></i> My Questions
+            <button class="tab active" onclick="switchTab('question-sets')">
+                <i class="fas fa-folder"></i> Question Sets
+            </button>
+            <button class="tab" onclick="switchTab('my-questions')">
+                <i class="fas fa-list"></i> All Questions
             </button>
             <button class="tab" onclick="switchTab('create-question')">
                 <i class="fas fa-plus"></i> New Question
             </button>
+            <button class="tab" onclick="switchTab('bulk-upload')">
+                <i class="fas fa-upload"></i> Bulk Upload
+            </button>
+        </div>
+
+        <!-- Question Sets Tab -->
+        <div id="question-sets" class="content-section active">
+            <div class="filters">
+                <input type="text" id="setSearchInput" placeholder="🔍 Search question sets..." class="filter-input">
+                <select id="setLanguageFilter" class="filter-select">
+                    <option value="">All Languages</option>
+                    <option value="IT">🇮🇹 Italian</option>
+                    <option value="EN">🇺🇸 English</option>
+                    <option value="ES">🇪🇸 Spanish</option>
+                    <option value="DE">🇩🇪 German</option>
+                    <option value="FR">🇫🇷 French</option>
+                </select>
+                <button class="btn" onclick="createNewQuestionSet()">
+                    <i class="fas fa-plus"></i> New Question Set
+                </button>
+            </div>
+            
+            <div id="questionSetsContainer">
+                <div class="loading-spinner"></div>
+            </div>
         </div>
 
         <!-- My Questions Tab -->
-        <div id="my-questions" class="content-section active">
-            <div class="action-bar">
-                <div class="search-bar">
-                    <input type="text" id="searchInput" placeholder="Search questions...">
-                    <select id="categoryFilter">
-                        <option value="">All Categories</option>
-                    </select>
-                    <select id="difficultyFilter">
-                        <option value="">All Difficulties</option>
-                        <option value="EASY">Easy</option>
-                        <option value="MEDIUM">Medium</option>
-                        <option value="HARD">Hard</option>
-                    </select>
-                </div>
-                <button class="btn" onclick="switchTab('create-question')">
-                    <i class="fas fa-plus"></i> New Question
-                </button>
+        <div id="my-questions" class="content-section">
+            <div class="filters">
+                <input type="text" id="searchInput" placeholder="🔍 Search questions..." class="filter-input">
+                <select id="questionSetFilter" class="filter-select">
+                    <option value="">All Question Sets</option>
+                </select>
+                <select id="languageFilter" class="filter-select">
+                    <option value="">All Languages</option>
+                    <option value="IT">🇮🇹 Italian</option>
+                    <option value="EN">🇺🇸 English</option>
+                    <option value="ES">🇪🇸 Spanish</option>
+                    <option value="DE">🇩🇪 German</option>
+                    <option value="FR">🇫🇷 French</option>
+                </select>
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">All Categories</option>
+                </select>
+                <select id="difficultyFilter" class="filter-select">
+                    <option value="">All Difficulties</option>
+                    <option value="EASY">Easy</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="HARD">Hard</option>
+                </select>
             </div>
-
-            <div class="questions-grid" id="questionsContainer">
-                <!-- Questions will be loaded here -->
+            
+            <div id="questionsContainer">
+                <div class="loading-spinner"></div>
             </div>
         </div>
 
         <!-- Create Question Tab -->
         <div id="create-question" class="content-section">
             <form id="createQuestionForm">
-                <div class="form-group">
-                    <label for="questionText">Question Text</label>
-                    <textarea id="questionText" name="questionText" rows="3" placeholder="Enter your question..." required></textarea>
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label for="questionLanguage">Language</label>
+                        <select id="questionLanguage" name="language" required>
+                            <option value="IT">🇮🇹 Italian</option>
+                            <option value="EN">🇺🇸 English</option>
+                            <option value="ES">🇪🇸 Spanish</option>
+                            <option value="DE">🇩🇪 German</option>
+                            <option value="FR">🇫🇷 French</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="questionSetSelect">Question Set</label>
+                        <select id="questionSetSelect" name="questionSetId" required>
+                            <option value="">Select Question Set</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="questionDifficulty">Difficulty</label>
+                        <select id="questionDifficulty" name="difficulty" required>
+                            <option value="EASY">Easy</option>
+                            <option value="MEDIUM">Medium</option>
+                            <option value="HARD">Hard</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="questionCategory">Category</label>
-                    <select id="questionCategory" name="category" required>
-                        <option value="">Select Category</option>
-                    </select>
+                    <div class="category-input-container">
+                        <select id="questionCategory" name="category">
+                            <option value="">Select or add new category</option>
+                        </select>
+                        <button type="button" class="add-category-btn" onclick="toggleNewCategory()">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                        <input type="text" id="newCategoryInput" class="new-category-input" placeholder="New category name">
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="questionDifficulty">Difficulty</label>
-                    <select id="questionDifficulty" name="difficulty" required>
-                        <option value="EASY">Easy</option>
-                        <option value="MEDIUM">Medium</option>
-                        <option value="HARD">Hard</option>
-                    </select>
+                    <label for="questionText">Question Text</label>
+                    <textarea id="questionText" name="questionText" rows="3" placeholder="Enter your question..." required></textarea>
                 </div>
 
                 <div class="form-group">
@@ -411,8 +483,8 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="explanation">Explanation (Optional)</label>
-                    <textarea id="explanation" name="explanation" rows="2" placeholder="Explain why this is the correct answer..."></textarea>
+                    <label for="questionExplanation">Explanation (Optional)</label>
+                    <textarea id="questionExplanation" name="explanation" rows="2" placeholder="Explain why this is the correct answer..."></textarea>
                 </div>
 
                 <button type="submit" class="btn">
@@ -420,13 +492,66 @@
                 </button>
             </form>
         </div>
+
+        <!-- Bulk Upload Tab -->
+        <div id="bulk-upload" class="content-section">
+            <div class="upload-area" id="uploadArea">
+                <i class="fas fa-cloud-upload-alt" style="font-size: 3rem; color: #cbd5e0; margin-bottom: 20px;"></i>
+                <h3>Upload JSON Question File</h3>
+                <p>Drag and drop your JSON file here or click to select</p>
+                <input type="file" id="jsonFileInput" class="file-input" accept=".json">
+                <button type="button" class="btn" onclick="document.getElementById('jsonFileInput').click()">
+                    <i class="fas fa-file-upload"></i> Select File
+                </button>
+            </div>
+
+            <div style="background: #f7fafc; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h4>📋 JSON Format Example:</h4>
+                <pre id="jsonExample" style="background: white; padding: 15px; border-radius: 8px; font-size: 0.9rem; overflow-x: auto;">
+{
+  "questionSet": {
+    "name": "General Knowledge Quiz",
+    "description": "A comprehensive quiz covering various topics",
+    "language": "EN",
+    "category": "General"
+  },
+  "questions": [
+    {
+      "text": "What is the capital of France?",
+      "options": ["London", "Berlin", "Paris", "Madrid"],
+      "correctAnswer": 2,
+      "difficulty": "EASY",
+      "category": "Geography",
+      "explanation": "Paris has been the capital of France since 987 AD."
+    },
+    {
+      "text": "Which planet is known as the Red Planet?",
+      "options": ["Venus", "Mars", "Jupiter", "Saturn"],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Science",
+      "explanation": "Mars appears red due to iron oxide on its surface."
+    }
+  ]
+}
+                </pre>
+                <button class="btn btn-secondary" onclick="downloadTemplate()">
+                    <i class="fas fa-download"></i> Download Template
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
-        let currentTab = 'my-questions';
+        // Configuration
+        const API_BASE = `http://${window.location.hostname}:3000`;
+        
+        let currentUser = null;
+        let questionSets = [];
         let questions = [];
         let categories = [];
 
+        // Initialize app
         document.addEventListener('DOMContentLoaded', function() {
             checkPremiumAccess();
             loadData();
@@ -434,71 +559,79 @@
         });
 
         function checkPremiumAccess() {
-            const user = JSON.parse(localStorage.getItem('brainbrawler_user') || '{}');
-            if (!user.token || (user.accountType !== 'PREMIUM' && user.accountType !== 'ADMIN')) {
+            const token = localStorage.getItem('brainbrawler_token');
+            const userFromStorage = localStorage.getItem('brainbrawler_user');
+            
+            if (!token || !userFromStorage) {
+                alert('Please login first to access this feature.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = JSON.parse(userFromStorage);
+            
+            if (user.accountType !== 'PREMIUM' && user.accountType !== 'ADMIN') {
                 alert('This feature requires a Premium account! Upgrade now to manage custom questions.');
                 window.location.href = 'lobby.html';
                 return;
             }
+            
+            currentUser = user;
         }
 
         function setupEventListeners() {
+            // Search and filter listeners
+            document.getElementById('setSearchInput').addEventListener('input', filterQuestionSets);
+            document.getElementById('setLanguageFilter').addEventListener('change', filterQuestionSets);
             document.getElementById('searchInput').addEventListener('input', filterQuestions);
+            document.getElementById('questionSetFilter').addEventListener('change', filterQuestions);
+            document.getElementById('languageFilter').addEventListener('change', filterQuestions);
             document.getElementById('categoryFilter').addEventListener('change', filterQuestions);
             document.getElementById('difficultyFilter').addEventListener('change', filterQuestions);
+            
+            // Form listeners
             document.getElementById('createQuestionForm').addEventListener('submit', handleCreateQuestion);
+            document.getElementById('jsonFileInput').addEventListener('change', handleFileUpload);
+            
+            // Drag and drop
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            uploadArea.addEventListener('drop', handleDrop);
         }
 
         async function loadData() {
             await Promise.all([
-                loadCategories(),
-                loadQuestions()
+                loadQuestionSets(),
+                loadQuestions(),
+                loadCategories()
             ]);
         }
 
-        async function loadCategories() {
+        async function loadQuestionSets() {
             try {
-                const response = await fetch(`http://${window.location.hostname}:3000/api/game/categories`);
+                const token = localStorage.getItem('brainbrawler_token');
+                const response = await fetch(`${API_BASE}/api/questions/sets`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
                 const data = await response.json();
                 
-                if (data.categories) {
-                    categories = data.categories;
-                    populateCategorySelects();
+                if (data.success) {
+                    questionSets = data.questionSets;
+                    renderQuestionSets();
+                    populateQuestionSetSelects();
                 }
             } catch (error) {
-                console.error('Failed to load categories:', error);
+                console.error('Failed to load question sets:', error);
             }
-        }
-
-        function populateCategorySelects() {
-            const selects = ['categoryFilter', 'questionCategory'];
-            
-            selects.forEach(selectId => {
-                const select = document.getElementById(selectId);
-                if (select) {
-                    const firstOption = select.querySelector('option');
-                    select.innerHTML = '';
-                    if (firstOption) {
-                        select.appendChild(firstOption);
-                    }
-                    
-                    categories.forEach(category => {
-                        const option = document.createElement('option');
-                        option.value = category.id;
-                        option.textContent = `${category.icon} ${category.name}`;
-                        select.appendChild(option);
-                    });
-                }
-            });
         }
 
         async function loadQuestions() {
             try {
-                const user = JSON.parse(localStorage.getItem('brainbrawler_user'));
-                const response = await fetch(`http://${window.location.hostname}:3000/api/questions/my`, {
-                    headers: {
-                        'Authorization': `Bearer ${user.token}`
-                    }
+                const token = localStorage.getItem('brainbrawler_token');
+                const response = await fetch(`${API_BASE}/api/questions/my`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
                 const data = await response.json();
@@ -512,6 +645,107 @@
             }
         }
 
+        async function loadCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/api/game/categories`);
+                const data = await response.json();
+                
+                if (data.categories) {
+                    categories = data.categories;
+                    populateCategorySelects();
+                }
+            } catch (error) {
+                console.error('Failed to load categories:', error);
+            }
+        }
+
+        function populateQuestionSetSelects() {
+            const selects = ['questionSetSelect', 'questionSetFilter'];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    const firstOption = select.querySelector('option');
+                    select.innerHTML = '';
+                    if (firstOption) {
+                        select.appendChild(firstOption);
+                    }
+                    
+                    questionSets.forEach(set => {
+                        const option = document.createElement('option');
+                        option.value = set.id;
+                        option.textContent = `${getFlagEmoji(set.language)} ${set.name} (${set.questionCount || 0} questions)`;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        function populateCategorySelects() {
+            const selects = ['questionCategory', 'categoryFilter'];
+            
+            selects.forEach(selectId => {
+                const select = document.getElementById(selectId);
+                if (select) {
+                    const firstOption = select.querySelector('option');
+                    select.innerHTML = '';
+                    if (firstOption) {
+                        select.appendChild(firstOption);
+                    }
+                    
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category.name;
+                        option.textContent = `${category.icon} ${category.name}`;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        function renderQuestionSets(setsToRender = questionSets) {
+            const container = document.getElementById('questionSetsContainer');
+            
+            if (setsToRender.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>No question sets found</h3>
+                        <p>Create your first question set to organize your questions!</p>
+                        <button class="btn" onclick="createNewQuestionSet()">
+                            <i class="fas fa-plus"></i> Create Question Set
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = setsToRender.map(set => `
+                <div class="question-set-card">
+                    <div class="question-set-header">
+                        <div>
+                            <div class="question-set-title">${getFlagEmoji(set.language)} ${set.name}</div>
+                            <div class="question-set-meta">
+                                <span><i class="fas fa-question-circle"></i> ${set.questionCount || 0} questions</span>
+                                <span><i class="fas fa-language"></i> ${getLanguageName(set.language)}</span>
+                                <span><i class="fas fa-tag"></i> ${set.category}</span>
+                                <span><i class="fas fa-clock"></i> ${formatDate(set.createdAt)}</span>
+                            </div>
+                            <p>${set.description}</p>
+                        </div>
+                        <div class="question-set-actions">
+                            <button class="btn btn-warning" onclick="editQuestionSet('${set.id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteQuestionSet('${set.id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         function renderQuestions(questionsToRender = questions) {
             const container = document.getElementById('questionsContainer');
             
@@ -521,6 +755,9 @@
                         <i class="fas fa-question-circle"></i>
                         <h3>No questions found</h3>
                         <p>Create your first custom question to get started!</p>
+                        <button class="btn" onclick="switchTab('create-question')">
+                            <i class="fas fa-plus"></i> Create Question
+                        </button>
                     </div>
                 `;
                 return;
@@ -532,9 +769,10 @@
                         <div>
                             <div class="question-text">${question.text}</div>
                             <div class="question-meta">
-                                <span><i class="fas fa-tag"></i> ${question.category?.name || 'Uncategorized'}</span>
+                                <span><i class="fas fa-language"></i> ${getFlagEmoji(question.language)} ${getLanguageName(question.language)}</span>
+                                <span><i class="fas fa-folder"></i> ${question.questionSet?.name || 'No Set'}</span>
+                                <span><i class="fas fa-tag"></i> ${question.category}</span>
                                 <span><i class="fas fa-signal"></i> ${question.difficulty}</span>
-                                <span><i class="fas fa-clock"></i> ${question.timeLimit || 30}s</span>
                             </div>
                         </div>
                         <div class="question-actions">
@@ -558,29 +796,59 @@
             `).join('');
         }
 
+        // Filter functions
+        function filterQuestionSets() {
+            const searchTerm = document.getElementById('setSearchInput').value.toLowerCase();
+            const languageFilter = document.getElementById('setLanguageFilter').value;
+
+            const filtered = questionSets.filter(set => {
+                const matchesSearch = set.name.toLowerCase().includes(searchTerm) ||
+                                    set.description.toLowerCase().includes(searchTerm);
+                const matchesLanguage = !languageFilter || set.language === languageFilter;
+                
+                return matchesSearch && matchesLanguage;
+            });
+
+            renderQuestionSets(filtered);
+        }
+
         function filterQuestions() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const questionSetFilter = document.getElementById('questionSetFilter').value;
+            const languageFilter = document.getElementById('languageFilter').value;
             const categoryFilter = document.getElementById('categoryFilter').value;
             const difficultyFilter = document.getElementById('difficultyFilter').value;
 
             const filtered = questions.filter(question => {
                 const matchesSearch = question.text.toLowerCase().includes(searchTerm);
-                const matchesCategory = !categoryFilter || question.categoryId === categoryFilter;
+                const matchesQuestionSet = !questionSetFilter || question.questionSetId === questionSetFilter;
+                const matchesLanguage = !languageFilter || question.language === languageFilter;
+                const matchesCategory = !categoryFilter || question.category === categoryFilter;
                 const matchesDifficulty = !difficultyFilter || question.difficulty === difficultyFilter;
                 
-                return matchesSearch && matchesCategory && matchesDifficulty;
+                return matchesSearch && matchesQuestionSet && matchesLanguage && matchesCategory && matchesDifficulty;
             });
 
             renderQuestions(filtered);
         }
 
+        // Form handlers
         async function handleCreateQuestion(e) {
             e.preventDefault();
             
             const formData = new FormData(e.target);
+            const category = formData.get('category') || document.getElementById('newCategoryInput').value;
+            
+            if (!category) {
+                alert('Please select or enter a category');
+                return;
+            }
+            
             const questionData = {
                 text: formData.get('questionText'),
-                categoryId: formData.get('category'),
+                language: formData.get('language'),
+                questionSetId: formData.get('questionSetId'),
+                category: category,
                 difficulty: formData.get('difficulty'),
                 options: [
                     formData.get('option0'),
@@ -593,12 +861,12 @@
             };
 
             try {
-                const user = JSON.parse(localStorage.getItem('brainbrawler_user'));
-                const response = await fetch(`http://${window.location.hostname}:3000/api/questions`, {
+                const token = localStorage.getItem('brainbrawler_token');
+                const response = await fetch(`${API_BASE}/api/questions`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${user.token}`
+                        'Authorization': `Bearer ${token}`
                     },
                     body: JSON.stringify(questionData)
                 });
@@ -608,7 +876,8 @@
                 if (data.success) {
                     alert('Question created successfully!');
                     e.target.reset();
-                    loadQuestions();
+                    document.getElementById('newCategoryInput').style.display = 'none';
+                    loadData();
                     switchTab('my-questions');
                 } else {
                     alert(data.message || 'Failed to create question');
@@ -619,6 +888,79 @@
             }
         }
 
+        // File upload handlers
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                processFile(files[0]);
+            }
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        async function processFile(file) {
+            if (!file.name.endsWith('.json')) {
+                alert('Please upload a JSON file');
+                return;
+            }
+
+            try {
+                const text = await file.text();
+                const data = JSON.parse(text);
+                
+                // Validate structure
+                if (!data.questionSet || !data.questions || !Array.isArray(data.questions)) {
+                    throw new Error('Invalid JSON structure');
+                }
+
+                if (data.questions.length < 10 || data.questions.length > 1000) {
+                    throw new Error('Question set must contain between 10 and 1000 questions');
+                }
+
+                // Upload to server
+                const token = localStorage.getItem('brainbrawler_token');
+                const response = await fetch(`${API_BASE}/api/questions/bulk-upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Successfully uploaded ${data.questions.length} questions!`);
+                    loadData();
+                    switchTab('question-sets');
+                } else {
+                    alert(result.message || 'Failed to upload questions');
+                }
+            } catch (error) {
+                console.error('File processing error:', error);
+                alert('Error processing file: ' + error.message);
+            }
+        }
+
+        // Utility functions
         function switchTab(tabName) {
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
@@ -629,20 +971,134 @@
             });
             
             document.getElementById(tabName).classList.add('active');
-            
             document.querySelector(`button[onclick="switchTab('${tabName}')"]`).classList.add('active');
+        }
+
+        function toggleNewCategory() {
+            const input = document.getElementById('newCategoryInput');
+            const select = document.getElementById('questionCategory');
             
-            currentTab = tabName;
+            if (input.style.display === 'none' || !input.style.display) {
+                input.style.display = 'block';
+                input.focus();
+                select.value = '';
+            } else {
+                input.style.display = 'none';
+                input.value = '';
+            }
         }
 
-        function editQuestion(questionId) {
-            // TODO: Implement edit functionality
-            alert('Edit functionality coming soon!');
+        async function createNewQuestionSet() {
+            const name = prompt('Enter question set name:');
+            if (!name) return;
+            
+            const language = prompt('Enter language code (IT, EN, ES, DE, FR):');
+            if (!language) return;
+            
+            const category = prompt('Enter category:');
+            if (!category) return;
+            
+            const description = prompt('Enter description (optional):') || '';
+
+            try {
+                const token = localStorage.getItem('brainbrawler_token');
+                const response = await fetch(`${API_BASE}/api/questions/sets`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name, language, category, description })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Question set created successfully!');
+                    loadData();
+                } else {
+                    alert(data.message || 'Failed to create question set');
+                }
+            } catch (error) {
+                console.error('Failed to create question set:', error);
+                alert('Network error. Please try again.');
+            }
         }
 
-        function deleteQuestion(questionId) {
+        function downloadTemplate() {
+            const template = {
+                questionSet: {
+                    name: "Sample Quiz",
+                    description: "A sample question set for demonstration",
+                    language: "EN",
+                    category: "General"
+                },
+                questions: [
+                    {
+                        text: "What is the capital of France?",
+                        options: ["London", "Berlin", "Paris", "Madrid"],
+                        correctAnswer: 2,
+                        difficulty: "EASY",
+                        category: "Geography",
+                        explanation: "Paris has been the capital of France since 987 AD."
+                    }
+                ]
+            };
+
+            const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'question-set-template.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function getFlagEmoji(language) {
+            const flags = {
+                'IT': '🇮🇹',
+                'EN': '🇺🇸',
+                'ES': '🇪🇸',
+                'DE': '🇩🇪',
+                'FR': '🇫🇷'
+            };
+            return flags[language] || '🌐';
+        }
+
+        function getLanguageName(language) {
+            const names = {
+                'IT': 'Italian',
+                'EN': 'English',
+                'ES': 'Spanish',
+                'DE': 'German',
+                'FR': 'French'
+            };
+            return names[language] || language;
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString();
+        }
+
+        // Placeholder functions for future implementation
+        function editQuestionSet(id) {
+            alert('Edit question set feature coming soon!');
+        }
+
+        function deleteQuestionSet(id) {
+            if (confirm('Are you sure you want to delete this question set?')) {
+                // Implement delete functionality
+                alert('Delete functionality coming soon!');
+            }
+        }
+
+        function editQuestion(id) {
+            alert('Edit question feature coming soon!');
+        }
+
+        function deleteQuestion(id) {
             if (confirm('Are you sure you want to delete this question?')) {
-                // TODO: Implement delete functionality
+                // Implement delete functionality
                 alert('Delete functionality coming soon!');
             }
         }

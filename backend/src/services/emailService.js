@@ -246,6 +246,81 @@ class EmailService {
     }
   }
 
+  // Invia email generica per test
+  async sendEmail(to, subject, text, html = null) {
+    try {
+      if (!this.isConfigured) {
+        console.log(`📧 TEST EMAIL - To: ${to}, Subject: ${subject}`);
+        console.log(`📧 TEST EMAIL - Text: ${text}`);
+        return { success: true, method: 'console' };
+      }
+
+      const mailOptions = {
+        from: this.fromEmail,
+        to: to,
+        subject: subject,
+        text: text
+      };
+
+      if (html) {
+        mailOptions.html = html;
+      }
+
+      console.log(`📮 TEST EMAIL - Attempting to send via SMTP to ${this.smtpHost}:${this.smtpPort}`);
+      console.log(`📮 TEST EMAIL - From: ${this.fromEmail} To: ${to}`);
+      console.log(`📮 TEST EMAIL - Subject: ${subject}`);
+      
+      try {
+        const info = await this.transporter.sendMail(mailOptions);
+        console.log(`✅ TEST EMAIL - Sent successfully via SMTP`);
+        console.log(`📬 TEST EMAIL - SMTP Response:`, info);
+        return { 
+          success: true, 
+          method: 'smtp', 
+          messageId: info.messageId,
+          response: info.response 
+        };
+      } catch (smtpError) {
+        console.error(`⚠️  TEST EMAIL - SMTP failed:`, {
+          error: smtpError.message,
+          code: smtpError.code,
+          command: smtpError.command,
+          host: this.smtpHost,
+          port: this.smtpPort,
+          responseCode: smtpError.responseCode,
+          response: smtpError.response
+        });
+        
+        // Fallback to console logging
+        console.log(`📧 TEST EMAIL FALLBACK - To: ${to}, Subject: ${subject}`);
+        console.log(`📧 TEST EMAIL FALLBACK - Text: ${text}`);
+        console.log('SMTP failed - email logged to console');
+        
+        return { 
+          success: false, 
+          method: 'console', 
+          error: smtpError.message,
+          details: smtpError.response || smtpError.code
+        };
+      }
+
+    } catch (error) {
+      console.error('TEST EMAIL - Service error:', error);
+      
+      // Fallback to console logging
+      console.log(`📧 TEST EMAIL FALLBACK - To: ${to}, Subject: ${subject}`);
+      console.log(`📧 TEST EMAIL FALLBACK - Text: ${text}`);
+      console.log('Email service failed - email logged to console');
+      
+      return { 
+        success: false, 
+        method: 'console', 
+        error: error.message,
+        details: error.stack
+      };
+    }
+  }
+
   // Controlla se SMTP è configurato
   checkIfConfigured() {
     return this.isConfigured;
@@ -254,11 +329,11 @@ class EmailService {
   // Ottieni stato del servizio
   getStatus() {
     return {
-      configured: this.isConfigured,
-      fromEmail: this.fromEmail,
+      isConfigured: this.isConfigured,
       smtpHost: this.smtpHost,
       smtpPort: this.smtpPort,
-      provider: this.isConfigured ? 'SMTP' : 'Console Logging'
+      fromEmail: this.fromEmail,
+      method: this.isConfigured ? 'SMTP' : 'Console Logging'
     };
   }
 }
