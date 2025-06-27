@@ -113,6 +113,8 @@
             background: #667eea;
             color: white;
         }
+        
+
 
         .main-content {
             max-width: 1200px;
@@ -449,6 +451,43 @@
         .room-name {
             font-weight: 600;
             color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .creator-badge {
+            color: #ffc107;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+            font-weight: 600;
+        }
+
+        .status-badge.active {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-badge.finished {
+            background: #6c757d;
+            color: white;
+        }
+
+        .status-badge.unavailable {
+            background: #dc3545;
+            color: white;
+        }
+
+        .room-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .room-players {
@@ -458,6 +497,23 @@
             border-radius: 20px;
             font-size: 0.8rem;
             font-weight: 600;
+        }
+
+        .delete-room-btn {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            padding: 6px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+
+        .delete-room-btn:hover {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
         }
 
         .room-info {
@@ -622,6 +678,7 @@
     </style>
 </head>
 <body>
+
     <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-container">
@@ -666,9 +723,49 @@
             </h2>
             <p class="section-subtitle">Jump into an existing room or wait for other players</p>
             
-            <button class="btn btn-primary" onclick="quickMatch()">
-                ⚡ Quick Match
-            </button>
+
+
+            <!-- Room Search Filters -->
+            <div style="margin: 20px 0; padding: 20px; background: rgba(102, 126, 234, 0.05); border-radius: 15px;">
+                <h4 style="margin-bottom: 15px; color: #667eea;">🔍 Search & Filter Rooms</h4>
+                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px; align-items: end;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Room Name</label>
+                        <input 
+                            type="text" 
+                            id="roomSearchInput" 
+                            placeholder="Search room by name..." 
+                            style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem;"
+                            oninput="filterRooms()"
+                        >
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Language</label>
+                        <select 
+                            id="languageFilter" 
+                            style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem;"
+                            onchange="filterRooms()"
+                        >
+                            <option value="">All Languages</option>
+                            <option value="IT">🇮🇹 Italian</option>
+                            <option value="EN">🇺🇸 English</option>
+                            <option value="ES">🇪🇸 Spanish</option>
+                            <option value="DE">🇩🇪 German</option>
+                            <option value="FR">🇫🇷 French</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Category</label>
+                        <select 
+                            id="categoryFilter" 
+                            style="width: 100%; padding: 10px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 1rem;"
+                            onchange="filterRooms()"
+                        >
+                            <option value="">All Categories</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
             
             <div class="rooms-container" id="roomsContainer">
                 <div class="loading-spinner"></div>
@@ -967,6 +1064,8 @@
         async function loadRooms() {
             try {
                 const token = localStorage.getItem('brainbrawler_token');
+                console.log('🔍 FRONTEND DEBUG - Loading rooms for user:', currentUser?.id);
+                
                 const response = await fetch(`${API_BASE}/api/game/rooms`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -974,6 +1073,16 @@
                 if (response.ok) {
                     const data = await response.json();
                     rooms = data.rooms || [];
+                    
+                    console.log('🔍 FRONTEND DEBUG - Rooms received:', rooms.length);
+                    console.log('🔍 FRONTEND DEBUG - Room details:', rooms.map(r => ({ 
+                        id: r.id, 
+                        name: r.name, 
+                        status: r.status, 
+                        isCreator: r.isCreator,
+                        createdBy: r.createdBy
+                    })));
+                    
                     updateRoomsDisplay();
                 } else {
                     console.error('Failed to load rooms');
@@ -988,41 +1097,165 @@
         }
 
         // Update rooms display
-        function updateRoomsDisplay() {
+        function updateRoomsDisplay(filteredRooms = null) {
             const container = document.getElementById('roomsContainer');
             const emptyState = document.getElementById('emptyRooms');
+            const roomsToShow = filteredRooms || rooms;
             
             container.innerHTML = '';
             
-            if (rooms.length === 0) {
+            if (roomsToShow.length === 0) {
                 emptyState.style.display = 'block';
                 return;
             }
             
             emptyState.style.display = 'none';
             
-            rooms.forEach(room => {
+            // Update category filter options
+            updateCategoryFilter();
+            
+            roomsToShow.forEach(room => {
                 const roomCard = document.createElement('div');
                 roomCard.className = 'room-card';
-                roomCard.onclick = () => joinRoom(room.id);
                 
+                const flagEmoji = getFlagEmoji(room.language);
+                const isCreator = currentUser && room.createdBy === currentUser.id;
+                const isPremium = currentUser && (currentUser.accountType === 'PREMIUM' || currentUser.accountType === 'ADMIN');
+                
+                // DEBUG: Log room info to understand the issue
+                if (isCreator) {
+                    console.log('🔍 CREATOR ROOM DEBUG:', {
+                        roomName: room.name,
+                        status: room.status,
+                        canJoin: room.canJoin,
+                        isCreator: isCreator,
+                        currentUser: currentUser?.id,
+                        roomCreatedBy: room.createdBy
+                    });
+                }
+                
+                let roomActions = '';
+                if (isCreator && isPremium) {
+                    roomActions = `
+                        <button class="delete-room-btn" onclick="event.stopPropagation(); deleteRoom('${room.id}')" title="Delete Room">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                }
+                
+                let statusBadge = '';
+                let roomClickAction = `joinRoom('${room.id}')`;
+                let canClick = true;
+                
+                // Handle different room statuses - but ALWAYS use joinRoom for consistency
+                if (room.status === 'ACTIVE' && isCreator) {
+                    statusBadge = '<span class="status-badge active">🎮 In Progress</span>';
+                    roomClickAction = `joinRoom('${room.id}')`;  // Changed: Always use joinRoom
+                } else if (room.status === 'FINISHED') {
+                    statusBadge = '<span class="status-badge finished">✅ Completed</span>';
+                    roomClickAction = `joinRoom('${room.id}')`;  // Changed: Always use joinRoom (auto-resets)
+                } else if (room.status === 'LOBBY' || room.status === 'WAITING') {
+                    // LOBBY/WAITING rooms are always joinable, especially for creators
+                    roomClickAction = `joinRoom('${room.id}')`;
+                    canClick = true;
+                } else if (!room.canJoin && !isCreator) {
+                    // Only block non-creators from non-joinable rooms
+                    statusBadge = '<span class="status-badge unavailable">❌ Cannot Join</span>';
+                    roomClickAction = '';
+                    canClick = false;
+                }
+
                 roomCard.innerHTML = `
                     <div class="room-header">
-                        <div class="room-name">${room.name}</div>
-                        <div class="room-players">${room.currentPlayers}/${room.maxPlayers}</div>
+                        <div class="room-name">
+                            ${flagEmoji} ${room.name}
+                            ${isCreator ? '<i class="fas fa-crown creator-badge" title="Your Room"></i>' : ''}
+                            ${statusBadge}
+                        </div>
+                        <div class="room-header-actions">
+                            <div class="room-players">${room.currentPlayers}/${room.maxPlayers}</div>
+                            ${roomActions}
+                        </div>
                     </div>
                     <div class="room-info">
                         <span>📚 ${room.category}</span>
                         <span>⏱️ ${room.questionTime}s per question</span>
                         <span>🎯 ${room.totalQuestions} questions</span>
+                        <span class="room-status">📋 ${room.statusDisplay || room.status}</span>
                     </div>
                 `;
+                
+                // Set click handler based on room status
+                if (canClick && roomClickAction) {
+                    roomCard.onclick = () => {
+                        eval(roomClickAction);
+                    };
+                    roomCard.style.cursor = 'pointer';
+                    roomCard.style.opacity = '1';
+                } else {
+                    roomCard.style.cursor = 'not-allowed';
+                    roomCard.style.opacity = '0.6';
+                    roomCard.onclick = null;
+                }
                 
                 container.appendChild(roomCard);
             });
         }
 
-        // Start polling for rooms
+        // Update category filter based on available rooms
+        function updateCategoryFilter() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            const categories = [...new Set(rooms.map(room => room.category))].sort();
+            
+            // Keep current selection
+            const currentValue = categoryFilter.value;
+            
+            // Clear and rebuild options
+            categoryFilter.innerHTML = '<option value="">All Categories</option>';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                categoryFilter.appendChild(option);
+            });
+            
+            // Restore selection if still valid
+            if (categories.includes(currentValue)) {
+                categoryFilter.value = currentValue;
+            }
+        }
+
+        // Filter rooms based on search criteria
+        function filterRooms() {
+            const searchInput = document.getElementById('roomSearchInput').value.toLowerCase();
+            const languageFilter = document.getElementById('languageFilter').value;
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            
+            const filteredRooms = rooms.filter(room => {
+                const matchesName = room.name.toLowerCase().includes(searchInput);
+                const matchesLanguage = !languageFilter || room.language === languageFilter;
+                const matchesCategory = !categoryFilter || room.category === categoryFilter;
+                
+                return matchesName && matchesLanguage && matchesCategory;
+            });
+            
+            updateRoomsDisplay(filteredRooms);
+        }
+
+        // Utility function for flag emojis
+        function getFlagEmoji(language) {
+            const flags = {
+                'IT': '🇮🇹',
+                'EN': '🇺🇸',
+                'ES': '🇪🇸',
+                'DE': '🇩🇪',
+                'FR': '🇫🇷'
+            };
+            return flags[language] || '🌐';
+        }
+
+        // Start polling for rooms  
         function startRoomsPolling() {
             if (roomsInterval) {
                 clearInterval(roomsInterval);
@@ -1038,31 +1271,36 @@
             }
         });
 
-        // Quick match
-        async function quickMatch() {
-            try {
-                const token = localStorage.getItem('brainbrawler_token');
-                const response = await fetch(`${API_BASE}/api/game/quick-match`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    window.location.href = `game.html?room=${data.roomId}`;
-                } else {
-                    const error = await response.json();
-                    alert(error.error || 'Failed to find a match');
-                }
-            } catch (error) {
-                alert('Network error. Please try again.');
-            }
-        }
+
 
         // Join specific room
         async function joinRoom(roomId) {
+            console.log(`🚪 JOIN ROOM CALLED with roomId: ${roomId}`);
+            
+            // Show loading indicator
+            const loadingDiv = document.createElement('div');
+            loadingDiv.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+                font-size: 18px;
+            `;
+            loadingDiv.innerHTML = '🔄 Joining room...';
+            document.body.appendChild(loadingDiv);
+            
             try {
                 const token = localStorage.getItem('brainbrawler_token');
+                console.log(`🔑 Token available: ${token ? 'YES' : 'NO'}`);
+                
+                console.log(`📡 Calling /api/game/join-room for room ${roomId}...`);
                 const response = await fetch(`${API_BASE}/api/game/join-room`, {
                     method: 'POST',
                     headers: {
@@ -1072,14 +1310,83 @@
                     body: JSON.stringify({ roomId })
                 });
                 
+                console.log(`📡 Join room response status: ${response.status}`);
+                
                 if (response.ok) {
-                    window.location.href = `game.html?room=${roomId}`;
+                    const data = await response.json();
+                    console.log(`✅ Join room successful:`, data);
+                    
+                    // Wait a moment to ensure backend processing is complete
+                    console.log(`⏳ Waiting for backend to process join...`);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    // Whether joining new or rejoining existing room, go to waiting room
+                    console.log(`🔄 Redirecting to waiting-room.html?roomId=${roomId}`);
+                    window.location.href = `waiting-room.html?roomId=${roomId}`;
                 } else {
                     const error = await response.json();
+                    console.error(`❌ Join room failed:`, error);
+                    document.body.removeChild(loadingDiv);
                     alert(error.error || 'Failed to join room');
                 }
             } catch (error) {
+                console.error(`💥 Join room exception:`, error);
+                document.body.removeChild(loadingDiv);
                 alert('Network error. Please try again.');
+            }
+        }
+        
+        // Rejoin active game (for creators)
+        async function rejoinGame(roomId) {
+            if (confirm('Your game is already in progress. Do you want to rejoin?')) {
+                // Get room code and go directly to game
+                try {
+                    const token = localStorage.getItem('brainbrawler_token');
+                    const response = await fetch(`${API_BASE}/api/game/room/${roomId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        const roomCode = `R${roomId}`;
+                        window.location.href = `game.html?roomId=${roomId}&roomCode=${roomCode}`;
+                    } else {
+                        alert('Failed to rejoin game');
+                    }
+                } catch (error) {
+                    alert('Network error. Please try again.');
+                }
+            }
+        }
+        
+        // Restart finished game (creator) or join room (other players)
+        async function restartGame(roomId) {
+            try {
+                const token = localStorage.getItem('brainbrawler_token');
+                
+                // Reset room status to LOBBY to allow new players to join
+                const response = await fetch(`${API_BASE}/api/game/reset-room`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ roomId })
+                });
+                
+                if (response.ok) {
+                    // Go to waiting room after resetting
+                    window.location.href = `waiting-room.html?roomId=${roomId}`;
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Failed to restart game. Trying to join normally...');
+                    // Fallback: try to join normally
+                    joinRoom(roomId);
+                }
+            } catch (error) {
+                console.error('Error restarting game:', error);
+                // Fallback: try to join normally  
+                joinRoom(roomId);
             }
         }
 
@@ -1108,6 +1415,56 @@
             // For now, redirect to statistics page
             alert('Achievements feature coming soon! 🏆\n\nFor now, check your detailed statistics.');
             viewStatistics();
+        }
+
+        // Delete room (Premium creators only)
+        async function deleteRoom(roomId) {
+            if (!confirm('Are you sure you want to delete this room? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('brainbrawler_token');
+                const response = await fetch(`${API_BASE}/api/game/room/${roomId}`, {
+                    method: 'DELETE',
+                    headers: { 
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    // Refresh the rooms list
+                    await loadRooms();
+                    
+
+                    // Show success message
+                    const successMessage = document.createElement('div');
+                    successMessage.style.cssText = `
+                        position: fixed;
+                        top: 20px;
+                        right: 20px;
+                        background: #28a745;
+                        color: white;
+                        padding: 15px 20px;
+                        border-radius: 10px;
+                        z-index: 1000;
+                        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                    `;
+                    successMessage.innerHTML = '<i class="fas fa-check"></i> Room deleted successfully';
+                    document.body.appendChild(successMessage);
+                    
+                    setTimeout(() => {
+                        document.body.removeChild(successMessage);
+                    }, 3000);
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Failed to delete room');
+                }
+            } catch (error) {
+                console.error('Delete room error:', error);
+                alert('Network error. Please try again.');
+            }
         }
 
         // Logout

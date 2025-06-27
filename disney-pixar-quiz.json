@@ -1,0 +1,1193 @@
+{
+  "questionSet": {
+    "name": "Disney & Pixar Quiz",
+    "description": "Un quiz completo sui film Disney e Pixar con 100 domande di vari livelli di difficoltà",
+    "language": "IT", 
+    "category": "Entertainment"
+  },
+  "questions": [
+    {
+      "text": "Come si chiama il topo più famoso della Disney?",
+      "options": [
+        "Jerry",
+        "Mickey Mouse", 
+        "Stuart Little",
+        "Ratatouille"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "Mickey Mouse è il personaggio più iconico della Disney, creato nel 1928."
+    },
+    {
+      "text": "In quale film Pixar un giocattolo cowboy è il protagonista?",
+      "options": [
+        "Cars",
+        "Monsters Inc.",
+        "Toy Story", 
+        "A Bug's Life"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "EASY", 
+      "category": "Pixar",
+      "explanation": "Woody, il cowboy giocattolo, è uno dei protagonisti della saga di Toy Story."
+    },
+    {
+      "text": "Qual è il nome della principessa del film 'La Bella e la Bestia'?",
+      "options": [
+        "Aurora",
+        "Belle",
+        "Ariel", 
+        "Cenerentola"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Principesse Disney", 
+      "explanation": "Belle è la protagonista de 'La Bella e la Bestia', amante dei libri e coraggiosa."
+    },
+    {
+      "text": "In 'Alla ricerca di Nemo', che tipo di pesce è Nemo?",
+      "options": [
+        "Pesce palla",
+        "Pesce pagliaccio",
+        "Pesce angelo",
+        "Pesce chirurgo"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Nemo e suo padre Marlin sono pesci pagliaccio, facilmente riconoscibili dalle strisce arancioni e bianche."
+    },
+    {
+      "text": "Come si chiama il leone protagonista del 'Re Leone'?",
+      "options": [
+        "Mufasa",
+        "Scar", 
+        "Simba",
+        "Timon"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "Simba è il giovane leone che diventa re, protagonista della storia."
+    },
+    {
+      "text": "In 'Frozen', come si chiama la regina dei ghiacci?",
+      "options": [
+        "Anna",
+        "Elsa",
+        "Olaf",
+        "Kristoff"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY", 
+      "category": "Disney Moderni",
+      "explanation": "Elsa è la regina di Arendelle con i poteri del ghiaccio."
+    },
+    {
+      "text": "Quale film Pixar racconta la storia di un robot che pulisce la Terra?",
+      "options": [
+        "WALL-E",
+        "Cars",
+        "Up",
+        "Inside Out"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Pixar", 
+      "explanation": "WALL-E è il robot spazzino che si innamora di EVE in questo capolavoro Pixar del 2008."
+    },
+    {
+      "text": "In 'La Sirenetta', come si chiama la protagonista?",
+      "options": [
+        "Aurora",
+        "Belle",
+        "Ariel",
+        "Jasmine"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "EASY",
+      "category": "Principesse Disney",
+      "explanation": "Ariel è la sirena che sogna di vivere sulla terraferma."
+    },
+    {
+      "text": "Quale supereroe Disney ha un mantello rosso?",
+      "options": [
+        "Mr. Incredibile",
+        "Elastigirl", 
+        "Edna Mode",
+        "Sindrome"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Mr. Incredibile indossa un costume rosso con mantello nel film 'Gli Incredibili'."
+    },
+    {
+      "text": "In 'Monsters Inc.', come si chiama il mostro peloso e blu?",
+      "options": [
+        "Mike",
+        "Sulley",
+        "Randall",
+        "Boo"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "James P. 'Sulley' Sullivan è il mostro grande, peloso e blu, migliore spaventatore della Monsters Inc."
+    },
+    {
+      "text": "Qual è il nome del tappeto volante di Aladdin?",
+      "options": [
+        "Magic Carpet",
+        "Tappeto",
+        "Flying Carpet", 
+        "Non ha un nome specifico"
+      ],
+      "correctAnswer": 3,
+      "difficulty": "MEDIUM",
+      "category": "Disney Classici",
+      "explanation": "Il tappeto volante di Aladdin non ha un nome specifico, è semplicemente chiamato 'tappeto volante'."
+    },
+    {
+      "text": "In che anno è uscito il primo film di Toy Story?",
+      "options": [
+        "1994",
+        "1995",
+        "1996",
+        "1997"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Toy Story è uscito nel 1995 ed è stato il primo lungometraggio completamente animato al computer."
+    },
+    {
+      "text": "Come si chiama il padre di Nemo?",
+      "options": [
+        "Marlin",
+        "Dory",
+        "Bruce",
+        "Gill"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Marlin è il padre apprensivo di Nemo che intraprende un viaggio per salvare suo figlio."
+    },
+    {
+      "text": "In 'Inside Out', quante emozioni primarie guidano Riley?",
+      "options": [
+        "4",
+        "5", 
+        "6",
+        "7"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Le cinque emozioni sono: Gioia, Tristezza, Rabbia, Paura e Disgusto."
+    },
+    {
+      "text": "Quale principessa Disney ha i capelli lunghi magici?",
+      "options": [
+        "Biancaneve",
+        "Rapunzel",
+        "Aurora",
+        "Ariel"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Principesse Disney",
+      "explanation": "Rapunzel ha capelli lunghi e magici che possono guarire e mantenere giovani."
+    },
+    {
+      "text": "In 'Cars', come si chiama il protagonista?",
+      "options": [
+        "Mater",
+        "Doc Hudson",
+        "Lightning McQueen",
+        "Sally"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Lightning McQueen è la macchina da corsa rossa protagonista di Cars."
+    },
+    {
+      "text": "Quale film Disney ha come protagonista una ragazza che si traveste da uomo per combattere?",
+      "options": [
+        "Pocahontas",
+        "Mulan",
+        "Merida",
+        "Moana"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Principesse Disney",
+      "explanation": "Mulan si traveste da uomo per prendere il posto del padre nell'esercito cinese."
+    },
+    {
+      "text": "In 'Up', come si chiama il cane parlante?",
+      "options": [
+        "Alpha",
+        "Beta",
+        "Dug",
+        "Gamma"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Dug è il cane Golden Retriever che può parlare grazie a un collare speciale."
+    },
+    {
+      "text": "Qual è il nome della fata di Peter Pan?",
+      "options": [
+        "Campanellino",
+        "Fata Turchina",
+        "Malefica",
+        "Flora"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "Campanellino (Tinker Bell) è la piccola fata amica di Peter Pan."
+    },
+    {
+      "text": "In quale film Disney appare il villano Jafar?",
+      "options": [
+        "Il Re Leone",
+        "Aladdin",
+        "La Bella e la Bestia",
+        "La Sirenetta"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "Jafar è il gran visir malvagio e il principale antagonista di Aladdin."
+    },
+    {
+      "text": "Come si chiama il pesce smemorato in 'Alla ricerca di Nemo'?",
+      "options": [
+        "Dory",
+        "Bruce",
+        "Gill",
+        "Bloat"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Dory è il pesce chirurgo blu con problemi di memoria a breve termine."
+    },
+    {
+      "text": "In 'Biancaneve', quanti sono i nani?",
+      "options": [
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "I sette nani sono: Dotto, Brontolo, Gongolo, Pisolo, Mammolo, Eolo e Cucciolo."
+    },
+    {
+      "text": "Quale film Pixar è ambientato in Messico durante il Día de los Muertos?",
+      "options": [
+        "Onward",
+        "Coco",
+        "Luca",
+        "Soul"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Coco racconta la storia di Miguel durante la celebrazione messicana del Día de los Muertos."
+    },
+    {
+      "text": "In 'La Bella Addormentata', come si chiama la principessa?",
+      "options": [
+        "Aurora",
+        "Belle",
+        "Ariel",
+        "Cenerentola"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Principesse Disney",
+      "explanation": "La principessa Aurora è conosciuta anche come Bella Addormentata."
+    },
+    {
+      "text": "Chi ha diretto il film 'Spirited Away' distribuito da Disney?",
+      "options": [
+        "John Lasseter",
+        "Hayao Miyazaki",
+        "Brad Bird",
+        "Pete Docter"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "HARD",
+      "category": "Disney Internazionali",
+      "explanation": "Hayao Miyazaki del Studio Ghibli ha diretto questo capolavoro distribuito da Disney in Occidente."
+    },
+    {
+      "text": "In 'Gli Incredibili', qual è il superpotere di Violetta?",
+      "options": [
+        "Super velocità",
+        "Invisibilità e scudi di forza",
+        "Super forza",
+        "Elasticità"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Violetta può diventare invisibile e creare scudi di forza protettivi."
+    },
+    {
+      "text": "Come si chiama il gatto di Cenerentola?",
+      "options": [
+        "Figaro",
+        "Lucifero",
+        "Gus",
+        "Jaq"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Disney Classici",
+      "explanation": "Lucifero è il gatto cattivo della matrigna di Cenerentola."
+    },
+    {
+      "text": "In quale città è ambientato 'Ratatouille'?",
+      "options": [
+        "Roma",
+        "Parigi",
+        "Londra",
+        "New York"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Ratatouille è ambientato a Parigi, dove Remy il topo sogna di diventare chef."
+    },
+    {
+      "text": "Qual è il nome del cavallo di Rapunzel?",
+      "options": [
+        "Maximus",
+        "Philippe",
+        "Pegasus",
+        "Angus"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Disney Moderni",
+      "explanation": "Maximus è il cavallo della guardia reale che inizialmente insegue Flynn Rider."
+    },
+    {
+      "text": "In 'Moana', come si chiama il semidio?",
+      "options": [
+        "Maui",
+        "Pua",
+        "Hei Hei",
+        "Te Fiti"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Disney Moderni",
+      "explanation": "Maui è il semidio mutaforma che aiuta Moana nella sua missione."
+    },
+    {
+      "text": "Quale colore ha la macchina di Saetta McQueen?",
+      "options": [
+        "Blu",
+        "Rosso",
+        "Giallo",
+        "Verde"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Lightning McQueen è una macchina da corsa di colore rosso con il numero 95."
+    },
+    {
+      "text": "In 'Il Libro della Giungla', come si chiama l'orso?",
+      "options": [
+        "Baloo",
+        "Bagheera",
+        "Kaa",
+        "Shere Khan"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "Baloo è l'orso pigro e bonario che insegna a Mowgli le necessità della vita."
+    },
+    {
+      "text": "Chi è il cattivo principale in 'Toy Story 3'?",
+      "options": [
+        "Zurg",
+        "Sid",
+        "Lotso",
+        "Stinky Pete"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Lotso (Lots-o'-Huggin' Bear) è l'orsacchiotto rosa profumato di fragole, antagonista principale."
+    },
+    {
+      "text": "In 'Pocahontas', come si chiama il procione?",
+      "options": [
+        "Meeko",
+        "Flit",
+        "Percy",
+        "John"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Disney Classici",
+      "explanation": "Meeko è il procione dispettoso e goloso, amico di Pocahontas."
+    },
+    {
+      "text": "Quale film Pixar ha vinto l'Oscar come miglior film d'animazione nel 2021?",
+      "options": [
+        "Onward",
+        "Soul",
+        "Luca",
+        "Turning Red"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "HARD",
+      "category": "Pixar",
+      "explanation": "Soul ha vinto l'Oscar 2021 per il miglior film d'animazione."
+    },
+    {
+      "text": "In 'Encanto', qual è il dono di Luisa?",
+      "options": [
+        "Super udito",
+        "Super forza",
+        "Controllo delle piante",
+        "Prevedere il futuro"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Disney Moderni",
+      "explanation": "Luisa ha il dono della super forza e aiuta il villaggio con i lavori pesanti."
+    },
+    {
+      "text": "Come si chiama il drago in 'Mulan'?",
+      "options": [
+        "Mushu",
+        "Cri-Kee",
+        "Khan",
+        "Shan Yu"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "Mushu è il piccolo drago rosso che dovrebbe proteggere Mulan."
+    },
+    {
+      "text": "In quale film Disney appare la canzone 'Hakuna Matata'?",
+      "options": [
+        "Tarzan",
+        "Il Re Leone",
+        "Aladdin",
+        "Il Libro della Giungla"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "'Hakuna Matata' è la famosa canzone cantata da Timon e Pumbaa ne Il Re Leone."
+    },
+    {
+      "text": "In 'Inside Out', di che colore è Gioia?",
+      "options": [
+        "Rosa",
+        "Giallo",
+        "Blu",
+        "Verde"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Gioia è rappresentata dal colore giallo e ha i capelli blu."
+    },
+    {
+      "text": "Quale principessa Disney non è nata principessa?",
+      "options": [
+        "Biancaneve",
+        "Aurora",
+        "Belle",
+        "Ariel"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "MEDIUM",
+      "category": "Principesse Disney",
+      "explanation": "Belle diventa principessa sposando la Bestia, ma nasce come figlia di un inventore."
+    },
+    {
+      "text": "In 'Monsters University', quale materia studia Mike?",
+      "options": [
+        "Economia dello spavento",
+        "Scienza dello spavento",
+        "Storia dello spavento",
+        "Arte dello spavento"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "HARD",
+      "category": "Pixar",
+      "explanation": "Mike studia Scienza dello spavento all'università, sognando di diventare uno spaventatore."
+    },
+    {
+      "text": "Come si chiama la bambina in 'Monsters Inc.'?",
+      "options": [
+        "Boo",
+        "Mary",
+        "Suzy",
+        "Kitty"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "La bambina viene chiamata Boo da Sulley, anche se il suo vero nome è Mary."
+    },
+    {
+      "text": "In 'Pinocchio', come si chiama il grillo?",
+      "options": [
+        "Grillo Parlante",
+        "Jiminy Cricket",
+        "Figaro",
+        "Gideon"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Disney Classici",
+      "explanation": "Jiminy Cricket è la coscienza di Pinocchio e la guida morale della storia."
+    },
+    {
+      "text": "Quale film Pixar è ambientato nell'aldilà musicale?",
+      "options": [
+        "Coco",
+        "Soul",
+        "Onward",
+        "Inside Out"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Soul esplora l'aldilà dove le anime sviluppano le loro passioni prima di nascere."
+    },
+    {
+      "text": "In 'Frozen', qual è il nome del regno di Elsa?",
+      "options": [
+        "Arendelle",
+        "Corona",
+        "DunBroch",
+        "Motunui"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Disney Moderni",
+      "explanation": "Arendelle è il regno nordico governato da Elsa e Anna."
+    },
+    {
+      "text": "Chi ha composto la musica per 'Il Re Leone'?",
+      "options": [
+        "Alan Menken",
+        "Elton John",
+        "Hans Zimmer",
+        "Phil Collins"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "HARD",
+      "category": "Disney Classici",
+      "explanation": "Hans Zimmer ha composto la colonna sonora orchestrale, mentre Elton John ha scritto le canzoni."
+    },
+    {
+      "text": "In 'Luca', dove è ambientata la storia?",
+      "options": [
+        "Grecia",
+        "Spagna",
+        "Italia",
+        "Francia"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Luca è ambientato in un pittoresco villaggio costiero della Riviera italiana."
+    },
+    {
+      "text": "Quale principessa Disney ha una tigre come animale domestico?",
+      "options": [
+        "Ariel",
+        "Belle",
+        "Jasmine",
+        "Pocahontas"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "EASY",
+      "category": "Principesse Disney",
+      "explanation": "Jasmine ha Rajah, una tigre del Bengala, come compagno fedele."
+    },
+    {
+      "text": "In 'Wreck-It Ralph', qual è il mestiere di Ralph?",
+      "options": [
+        "Riparatore",
+        "Cattivo di un videogioco",
+        "Programmatore",
+        "Venditore di caramelle"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Disney Moderni",
+      "explanation": "Ralph è il cattivo del videogioco arcade 'Fix-It Felix Jr.' che sogna di essere un eroe."
+    },
+    {
+      "text": "Come si chiama il pappagallo di Jafar in 'Aladdin'?",
+      "options": [
+        "Iago",
+        "Zazu",
+        "Archimedes",
+        "Scuttle"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Disney Classici",
+      "explanation": "Iago è il pappagallo rosso complice di Jafar."
+    },
+    {
+      "text": "Quale film Disney ha come protagonista una ragazza scozzese arciera?",
+      "options": [
+        "Brave",
+        "Mulan",
+        "Pocahontas",
+        "Moana"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Disney Moderni",
+      "explanation": "Brave (Ribelle) ha come protagonista Merida, la principessa scozzese arciera."
+    },
+    {
+      "text": "In 'Tarzan', come si chiama la gorilla femmina che adotta Tarzan?",
+      "options": [
+        "Terk",
+        "Kala",
+        "Tantor",
+        "Kerchak"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Disney Classici",
+      "explanation": "Kala è la gorilla femmina dal cuore gentile che trova e cresce Tarzan come suo figlio."
+    },
+    {
+      "text": "Quale superpotere ha Dash in 'Gli Incredibili'?",
+      "options": [
+        "Volo",
+        "Super velocità",
+        "Invisibilità",
+        "Teletrasporto"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Dash ha il potere della super velocità e ama correre."
+    },
+    {
+      "text": "In 'La Principessa e il Ranocchio', come si chiama la protagonista?",
+      "options": [
+        "Tiana",
+        "Charlotte",
+        "Evangeline",
+        "Mama Odie"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Principesse Disney",
+      "explanation": "Tiana è la cameriera che sogna di aprire il suo ristorante a New Orleans."
+    },
+    {
+      "text": "Che animale è Sven in 'Frozen'?",
+      "options": [
+        "Alce",
+        "Renna",
+        "Cervo",
+        "Caribù"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Disney Moderni",
+      "explanation": "Sven è la renna fedele compagna di Kristoff."
+    },
+    {
+      "text": "In 'A Bug's Life', come si chiama la formica protagonista?",
+      "options": [
+        "Flik",
+        "Dot",
+        "Atta",
+        "Hopper"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Flik è la formica inventore che cerca aiuto per salvare la colonia dalle cavallette."
+    },
+    {
+      "text": "Quale villano Disney si trasforma in drago?",
+      "options": [
+        "Jafar",
+        "Malefica",
+        "Ursula",
+        "Scar"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Disney Classici",
+      "explanation": "Malefica si trasforma in un enorme drago nero nella battaglia finale de 'La Bella Addormentata'."
+    },
+    {
+      "text": "In 'Oceania', qual è il nome del villaggio di Moana?",
+      "options": [
+        "Motunui",
+        "Te Fiti",
+        "Lalotai",
+        "Tamatoa"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "HARD",
+      "category": "Disney Moderni",
+      "explanation": "Motunui è l'isola polinesiana dove vive Moana con la sua famiglia."
+    },
+    {
+      "text": "Come si chiama il cane di Mickey Mouse?",
+      "options": [
+        "Goofy",
+        "Pluto",
+        "Chip",
+        "Dale"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "Pluto è il cane giallo fedele di Mickey Mouse."
+    },
+    {
+      "text": "In quale film Disney appare il personaggio di Baymax?",
+      "options": [
+        "Wreck-It Ralph",
+        "Big Hero 6",
+        "Zootopia",
+        "Frozen"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Disney Moderni",
+      "explanation": "Baymax è il robot sanitario gonfiabile protagonista di Big Hero 6."
+    },
+    {
+      "text": "Qual è il vero nome della Bestia in 'La Bella e la Bestia'?",
+      "options": [
+        "Adam",
+        "Eric",
+        "Philip",
+        "Non viene mai rivelato"
+      ],
+      "correctAnswer": 3,
+      "difficulty": "HARD",
+      "category": "Disney Classici",
+      "explanation": "Il vero nome della Bestia non viene mai esplicitamente rivelato nel film originale."
+    },
+    {
+      "text": "In 'Cars 2', in quale paese si svolge la prima gara del Grand Prix Mondiale?",
+      "options": [
+        "Italia",
+        "Giappone",
+        "Francia",
+        "Inghilterra"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "HARD",
+      "category": "Pixar",
+      "explanation": "La prima gara del World Grand Prix si svolge a Tokyo, in Giappone."
+    },
+    {
+      "text": "Come si chiama la madre di Bambi?",
+      "options": [
+        "Faline",
+        "Non ha un nome",
+        "Ena",
+        "Mena"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "HARD",
+      "category": "Disney Classici",
+      "explanation": "La madre di Bambi si chiama Ena, anche se raramente viene chiamata per nome nel film."
+    },
+    {
+      "text": "In 'Ratatouille', come si chiama il topo fratello di Remy?",
+      "options": [
+        "Emile",
+        "Django",
+        "Linguini",
+        "Skinner"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Emile è il fratello maggiore di Remy, più interessato al cibo spazzatura che alla cucina raffinata."
+    },
+    {
+      "text": "Quale principessa Disney è basata su una persona reale?",
+      "options": [
+        "Mulan",
+        "Pocahontas",
+        "Merida",
+        "Moana"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Principesse Disney",
+      "explanation": "Pocahontas è basata sulla figura storica di Pocahontas, nativa americana del XVII secolo."
+    },
+    {
+      "text": "In 'Up', dove vuole andare Carl con la sua casa?",
+      "options": [
+        "Paradise Falls",
+        "Angel Falls",
+        "Victoria Falls",
+        "Niagara Falls"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Carl vuole raggiungere Paradise Falls in Sud America, come promesso a sua moglie Ellie."
+    },
+    {
+      "text": "Come si chiama il cavallo di Tangled?",
+      "options": [
+        "Philippe",
+        "Maximus",
+        "Angus",
+        "Khan"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Disney Moderni",
+      "explanation": "Maximus è il cavallo bianco della guardia reale, inizialmente nemico poi alleato di Flynn."
+    },
+    {
+      "text": "In 'Soul', qual è lo strumento musicale principale di Joe?",
+      "options": [
+        "Sassofono",
+        "Pianoforte",
+        "Tromba",
+        "Contrabbasso"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Joe Gardner è un pianista jazz che sogna di suonare con la famosa Dorothea Williams."
+    },
+    {
+      "text": "Quale film Disney presenta la canzone 'Colors of the Wind'?",
+      "options": [
+        "Mulan",
+        "Pocahontas",
+        "Tarzan",
+        "Il Libro della Giungla"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Disney Classici",
+      "explanation": "'Colors of the Wind' è la canzone principale di Pocahontas, cantata dalla protagonista."
+    },
+    {
+      "text": "In 'Monsters University', di che colore è Mike Wazowski?",
+      "options": [
+        "Blu",
+        "Verde",
+        "Giallo",
+        "Viola"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Mike Wazowski è una sfera verde con un occhio solo al centro."
+    },
+    {
+      "text": "Come si chiama la malvagia matrigna di Cenerentola?",
+      "options": [
+        "Lady Tremaine",
+        "Drizella",
+        "Anastasia",
+        "Non ha un nome"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "HARD",
+      "category": "Disney Classici",
+      "explanation": "Lady Tremaine è il nome della matrigna di Cenerentola."
+    },
+    {
+      "text": "In 'Finding Dory', che tipo di memoria ha problemi Dory?",
+      "options": [
+        "Memoria a lungo termine",
+        "Memoria a breve termine",
+        "Memoria visiva",
+        "Memoria emotiva"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Dory soffre di perdita di memoria a breve termine, dimenticando le cose dopo pochi secondi."
+    },
+    {
+      "text": "Quale film Pixar ha vinto il primo Oscar per il miglior film d'animazione?",
+      "options": [
+        "Toy Story",
+        "A Bug's Life",
+        "Monsters Inc.",
+        "Finding Nemo"
+      ],
+      "correctAnswer": 3,
+      "difficulty": "HARD",
+      "category": "Pixar",
+      "explanation": "Finding Nemo ha vinto l'Oscar nel 2004, il secondo anno di esistenza della categoria."
+    },
+    {
+      "text": "In 'Encanto', come si chiama la nonna della famiglia Madrigal?",
+      "options": [
+        "Abuela Alma",
+        "Pepa",
+        "Julieta",
+        "Dolores"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Disney Moderni",
+      "explanation": "Abuela Alma è la matriarca della famiglia Madrigal e guardiana della candela magica."
+    },
+    {
+      "text": "Quale animale è Sebastian ne 'La Sirenetta'?",
+      "options": [
+        "Pesce",
+        "Granchio",
+        "Aragosta",
+        "Polpo"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "Sebastian è un granchio rosso, consigliere del Re Tritone e amico di Ariel."
+    },
+    {
+      "text": "In 'Onward', che creature fantastiche sono i protagonisti?",
+      "options": [
+        "Draghi",
+        "Elfi",
+        "Fate",
+        "Centauri"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Ian e Barley Lightfoot sono due fratelli elfi che vivono in un mondo fantastico modernizzato."
+    },
+    {
+      "text": "Come si chiama la città in 'Zootopia'?",
+      "options": [
+        "Zootropolis",
+        "Zootopia",
+        "Animal City",
+        "Critter City"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Disney Moderni",
+      "explanation": "Zootopia è la grande metropoli dove vivono insieme tutti gli animali antropomorfi."
+    },
+    {
+      "text": "In 'Il Gobbo di Notre Dame', come si chiama il protagonista?",
+      "options": [
+        "Quasimodo",
+        "Frollo",
+        "Phoebus",
+        "Clopin"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "Quasimodo è il giovane campanaro gobbo che vive nella cattedrale di Notre Dame."
+    },
+    {
+      "text": "Quale film Pixar è stato il primo sequel della compagnia?",
+      "options": [
+        "Cars 2",
+        "Monsters University",
+        "Toy Story 2",
+        "Finding Dory"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Toy Story 2 del 1999 è stato il primo sequel prodotto da Pixar."
+    },
+    {
+      "text": "In 'Hercules', come si chiama il cavallo alato?",
+      "options": [
+        "Pegasus",
+        "Maximus",
+        "Philippe",
+        "Bucephalus"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "EASY",
+      "category": "Disney Classici",
+      "explanation": "Pegasus è il cavallo alato bianco, fedele compagno di Hercules fin dall'infanzia."
+    },
+    {
+      "text": "Quale film Disney è stato il primo ad essere completamente animato al computer?",
+      "options": [
+        "Toy Story",
+        "A Bug's Life",
+        "Dinosaur",
+        "Chicken Little"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "HARD",
+      "category": "Pixar",
+      "explanation": "Toy Story del 1995 è stato il primo lungometraggio completamente realizzato con animazione computerizzata."
+    },
+    {
+      "text": "In 'Turning Red', in quale animale si trasforma Mei?",
+      "options": [
+        "Volpe",
+        "Panda rosso",
+        "Gatto",
+        "Scoiattolo"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Pixar",
+      "explanation": "Mei si trasforma in un grande panda rosso quando prova emozioni intense."
+    },
+    {
+      "text": "Come si chiama la fata madrina di Cenerentola?",
+      "options": [
+        "Flora",
+        "Fauna",
+        "Primavera",
+        "Fata Madrina"
+      ],
+      "correctAnswer": 3,
+      "difficulty": "MEDIUM",
+      "category": "Disney Classici",
+      "explanation": "La fata madrina di Cenerentola viene semplicemente chiamata 'Fata Madrina' nel film."
+    },
+    {
+      "text": "In 'Cars 3', chi allena Lightning McQueen?",
+      "options": [
+        "Doc Hudson",
+        "Cruz Ramirez",
+        "Jackson Storm",
+        "Mater"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Cruz Ramirez diventa inizialmente l'allenatrice di McQueen e poi sua protetta nel racing."
+    },
+    {
+      "text": "Quale principessa Disney ha due sorellastre?",
+      "options": [
+        "Biancaneve",
+        "Cenerentola",
+        "Aurora",
+        "Belle"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "EASY",
+      "category": "Principesse Disney",
+      "explanation": "Cenerentola ha due sorellastre: Drizella e Anastasia Tremaine."
+    },
+    {
+      "text": "In 'The Good Dinosaur', come si chiama il giovane dinosauro protagonista?",
+      "options": [
+        "Arlo",
+        "Spot",
+        "Buck",
+        "Nash"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Pixar",
+      "explanation": "Arlo è il giovane Apatosaurus che si perde e deve ritrovare la strada di casa."
+    },
+    {
+      "text": "Come si chiamano i gatti siamesi in 'Lilli e il Vagabondo'?",
+      "options": [
+        "Tom e Jerry",
+        "Si e Am",
+        "Chip e Dale",
+        "Tic e Tac"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "HARD",
+      "category": "Disney Classici",
+      "explanation": "Si e Am sono i due gatti siamesi dispettosi che creano problemi a Lilli."
+    },
+    {
+      "text": "In 'Ralph Spaccatutto', qual è il dolce preferito del Re Candy?",
+      "options": [
+        "Cioccolato",
+        "Caramelle",
+        "Biscotti",
+        "Gelato"
+      ],
+      "correctAnswer": 1,
+      "difficulty": "MEDIUM",
+      "category": "Disney Moderni",
+      "explanation": "Il Re Candy è ossessionato dalle caramelle e governa il mondo di Sugar Rush."
+    },
+    {
+      "text": "Quale film Disney presenta il primo bacio d'amore animato?",
+      "options": [
+        "Biancaneve",
+        "Cenerentola",
+        "La Bella Addormentata",
+        "La Sirenetta"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "HARD",
+      "category": "Disney Classici",
+      "explanation": "Biancaneve e i Sette Nani del 1937 presenta il primo bacio d'amore nella storia dell'animazione Disney."
+    },
+    {
+      "text": "In 'Luca', qual è la paura principale di Alberto?",
+      "options": [
+        "L'acqua",
+        "I gatti",
+        "L'abbandono",
+        "I pescatori"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "HARD",
+      "category": "Pixar",
+      "explanation": "Alberto teme l'abbandono, avendo vissuto l'esperienza di essere lasciato solo dal padre."
+    },
+    {
+      "text": "Come si chiama la lucciola in 'La Principessa e il Ranocchio'?",
+      "options": [
+        "Ray",
+        "Louis",
+        "Mama Odie",
+        "Facilier"
+      ],
+      "correctAnswer": 0,
+      "difficulty": "MEDIUM",
+      "category": "Disney Moderni",
+      "explanation": "Ray è la lucciola cajun romantica che aiuta Tiana e Naveen nel loro viaggio."
+    }
+  ]
+} 

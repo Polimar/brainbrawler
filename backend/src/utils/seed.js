@@ -132,7 +132,7 @@ async function seedQuestions() {
       name: 'General Quiz Set',
       description: 'A mix of general knowledge questions',
       isPublic: true,
-      createdBy: 'system'
+      userId: 'system'
     }
   });
 
@@ -409,7 +409,7 @@ async function main() {
                 name: `${category.name} - ${difficulty}`,
                 description: `Domande di ${category.name.toLowerCase()} di livello ${difficulty.toLowerCase()}`,
                 isPublic: true,
-                createdBy: 'system'
+                userId: 'system'
               }
             });
 
@@ -435,7 +435,7 @@ async function main() {
               name: `${category.name} - Mix`,
               description: `Domande miste di ${category.name.toLowerCase()} di varie difficoltà`,
               isPublic: true,
-              createdBy: 'system'
+              userId: 'system'
             }
           });
 

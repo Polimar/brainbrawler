@@ -45,6 +45,9 @@ const prisma = new PrismaClient();
 const kafkaProducer = new KafkaProducer();
 const gameEngine = new GameEngine(io, prisma);
 
+// Make gameEngine available to routes
+app.locals.gameEngine = gameEngine;
+
 // Middleware
 app.use(helmet());
 app.use(compression());
@@ -152,19 +155,133 @@ io.on('connection', (socket) => {
     }
   });
   
-  // Submit answer
-  socket.on('submit-answer', async (data) => {
+  // Join waiting room (for room lobby)
+  socket.on('join-waiting-room', async (data) => {
     try {
-      await kafkaProducer.send('answer-events', {
-        type: 'ANSWER_SUBMITTED',
-        userId: socket.user.id,
-        roomCode: data.roomCode,
-        questionId: data.questionId,
-        answer: data.answer,
-        timestamp: data.timestamp || Date.now()
+      const { roomId } = data;
+      console.log(`Player ${socket.user.id} joining waiting room ${roomId}`);
+      
+      // Join the Socket.io room for waiting room updates
+      socket.join(`waiting-${roomId}`);
+      
+      // Send confirmation
+      socket.emit('joined-waiting-room', {
+        roomId: roomId,
+        message: 'Successfully joined waiting room'
       });
       
-      socket.emit('answer-received', { success: true });
+    } catch (error) {
+      console.error('Error joining waiting room:', error);
+      socket.emit('error', { message: error.message });
+    }
+  });
+
+  // Handle game start countdown (broadcast to all players in waiting room)
+  socket.on('start-game-countdown', async (data) => {
+    try {
+      const { roomId, gameData } = data;
+      console.log(`Broadcasting game start countdown for room ${roomId}`);
+      
+      // Broadcast countdown to all players in the waiting room
+      socket.to(`waiting-${roomId}`).emit('game-starting-countdown', {
+        gameData: gameData,
+        message: 'Host started the game! Get ready...'
+      });
+      
+    } catch (error) {
+      console.error('Error broadcasting game start:', error);
+      socket.emit('error', { message: error.message });
+    }
+  });
+
+  // Join game room (for active games)
+  socket.on('join-game-room', async (data) => {
+    try {
+      const { roomId, roomCode } = data;
+      console.log(`🎮 Player ${socket.user.id} (${socket.user.username}) joining game room ${roomCode}`);
+      
+      // Join the Socket.io room
+      socket.join(roomCode);
+      console.log(`✅ Player ${socket.user.id} joined Socket.io room: ${roomCode}`);
+      
+      // Check if game state exists for this room
+      const gameState = await gameEngine.getGameState(roomCode);
+      if (gameState) {
+        console.log(`🎯 Game state found for room ${roomCode}, status: ${gameState.status}`);
+        
+        // If game is ACTIVE and there's a current question, send it immediately
+        if (gameState.status === 'ACTIVE' && gameState.questions && gameState.currentQuestion < gameState.questions.length) {
+          const question = gameState.questions[gameState.currentQuestion];
+          const questionNumber = gameState.currentQuestion + 1;
+          const timeLimit = gameState.timePerQuestion || 15;
+          
+          console.log(`🎯 Sending current question ${questionNumber} to newly joined player ${socket.user.id}`);
+          
+          // Send current question to this specific player
+          socket.emit('game-question', {
+            question: {
+              id: question.id,
+              text: question.text,
+              options: question.options,
+            },
+            questionNumber: questionNumber,
+            totalQuestions: gameState.questions.length,
+            timeLimit: timeLimit,
+            roomCode: roomCode
+          });
+        }
+      } else {
+        console.log(`⚠️ No game state found for room ${roomCode}`);
+      }
+      
+      // Notify other players
+      socket.to(roomCode).emit('player-joined-game', {
+        playerId: socket.user.id,
+        displayName: socket.user.displayName || socket.user.username,
+        timestamp: Date.now()
+      });
+      
+      // Send confirmation
+      socket.emit('joined-game-room', {
+        roomId: roomId,
+        roomCode: roomCode,
+        message: 'Successfully joined game room',
+        gameState: gameState ? { status: gameState.status } : null
+      });
+      
+    } catch (error) {
+      console.error('Error joining game room:', error);
+      socket.emit('error', { message: error.message });
+    }
+  });
+  
+  // Submit answer to GameEngine
+  socket.on('submit-answer', async (data) => {
+    try {
+      const { roomCode, questionIndex, answer } = data; // Removed timestamp - now server-side timing
+      const userId = socket.user.id;
+      
+      console.log(`Answer from ${userId} in room ${roomCode}: ${answer} for question ${questionIndex}`);
+      
+      // Submit answer to GameEngine (no timestamp needed - server calculates response time)
+      const result = await gameEngine.submitAnswer(userId, roomCode, questionIndex, answer);
+      
+      // Notify other players that this player answered
+      socket.to(roomCode).emit('player-answered', {
+        playerId: userId,
+        hasAnswered: true,
+        questionIndex: questionIndex
+      });
+      
+      // Send confirmation to player
+      socket.emit('answer-submitted', {
+        success: true,
+        questionIndex: questionIndex,
+        answer: answer,
+        isCorrect: result.isCorrect,
+        responseTime: result.responseTime
+      });
+      
     } catch (error) {
       console.error('Error submitting answer:', error);
       socket.emit('error', { message: error.message });

@@ -1,255 +1,244 @@
-# 🧠 BrainBrawler - Complete UX Experience Guide
+# 🧠 BrainBrawler - Guida Completa UX Experience
 
-## Overview
-BrainBrawler is a freemium multiplayer quiz platform that offers different experiences for FREE and PREMIUM users, with monetization through advertisements and premium features.
+## Panoramica
+BrainBrawler è una piattaforma quiz multigiocatore freemium che offre esperienze diverse per utenti FREE e PREMIUM, con monetizzazione tramite pubblicità e funzionalità premium.
 
 ---
 
-## 📱 User Journey Flow
+## 📱 Flusso Utente
 
 ```mermaid
 graph TD
-    A[Landing Page] --> B{User Account?}
-    B -->|New User| C[Registration]
-    B -->|Existing User| D[Login]
-    C --> E[Email Verification]
-    D --> F{Email Verified?}
+    A[Landing Page] --> B{Account Utente?}
+    B -->|Nuovo Utente| C[Registrazione]
+    B -->|Utente Esistente| D[Login]
+    C --> E[Verifica Email]
+    D --> F{Email Verificata?}
     F -->|No| E
-    F -->|Yes| G[Account Setup]
+    F -->|Sì| G[Setup Account]
     E --> G
-    G --> H{Account Type?}
-    H -->|FREE| I[Lobby with Ads]
-    H -->|PREMIUM| J[Lobby Ad-Free]
-    I --> K[Game Selection]
+    G --> H{Tipo Account?}
+    H -->|FREE| I[Lobby con Pubblicità]
+    H -->|PREMIUM/ADMIN| J[Lobby Senza Pubblicità]
+    I --> K[Selezione Gioco]
     J --> K
-    K --> L[Game Room]
+    K --> L[Waiting Room]
     L --> M[Gameplay]
-    M --> N[Results & Stats]
-    N --> O{Continue?}
-    O -->|Yes| K
+    M --> N[Risultati & Statistiche]
+    N --> O{Continua?}
+    O -->|Sì| K
     O -->|No| P[Logout]
 ```
 
 ---
 
-## 🎯 User Experience Journey
+## 🎯 Journey Esperienza Utente
 
 ### 1. **Landing Page** (`index.html`)
-**Purpose**: First impression, user acquisition, conversion
+**Scopo**: Prima impressione, acquisizione utenti, conversione
 
-**Features**:
-- Modern gradient design with brain theme
-- Dual login/registration forms with tab switching
-- Real-time validation with debounced availability checks
-- Google OAuth integration
+**Funzionalità**:
+- Design moderno con gradiente e tema brain
+- Form dual login/registrazione con tab switching
+- Validazione real-time con controlli di disponibilità debounced
+- Integrazione Google OAuth
 - Password strength meter
-- Responsive design for all devices
+- Design responsive per tutti i dispositivi
 
-**FREE vs PREMIUM**: No difference at this stage
+**FREE vs PREMIUM**: Nessuna differenza in questa fase
 
-### 2. **Registration Process**
-**Purpose**: Acquire new users with smooth onboarding
+### 2. **Processo di Registrazione**
+**Scopo**: Acquisire nuovi utenti con onboarding fluido
 
-**Flow**:
-1. **Form Validation**: Real-time username/email availability
-2. **Account Creation**: User data stored in database
-3. **Email Verification**: 6-digit code sent via SMTP
-4. **Welcome Email**: Account type and feature information
+**Flusso**:
+1. **Validazione Form**: Disponibilità username/email real-time
+2. **Creazione Account**: Dati utente salvati nel database
+3. **Verifica Email**: Codice a 6 cifre inviato via SMTP
+4. **Email di Benvenuto**: Informazioni tipo account e funzionalità
 
-**Technical**: 
-- Debounced API calls to prevent spam
-- Client-side and server-side validation
-- Secure password hashing (bcrypt)
+**Tecnico**: 
+- Chiamate API debounced per prevenire spam
+- Validazione client-side e server-side
+- Hash sicuro password (bcrypt)
+- Storage: `localStorage.getItem('brainbrawler_user')` e `'brainbrawler_token'`
 
-### 3. **Email Verification** (`verify-email.html`)
-**Purpose**: Ensure valid email addresses, reduce spam
+### 3. **Verifica Email** (`verify-email.html`)
+**Scopo**: Garantire indirizzi email validi, ridurre spam
 
-**Features**:
-- 6-digit code input with paste support
-- Resend functionality with 60-second cooldown
-- Auto-focus and input navigation
-- Success animations
-- Error handling and retry logic
+**Funzionalità**:
+- Input codice 6 cifre con supporto paste
+- Funzionalità resend con cooldown 60 secondi
+- Auto-focus e navigazione input
+- Animazioni di successo
+- Gestione errori e retry logic
 
-**Security**: Codes expire after 24 hours
+**Sicurezza**: Codici scadono dopo 24 ore
 
-### 4. **Account Setup** (`account-setup.html`)
-**Purpose**: Introduce freemium model, capture upgrade intent
+### 4. **Setup Account** (`account-setup.html`)
+**Scopo**: Introdurre modello freemium, catturare upgrade intent
 
-**Features**:
-- Side-by-side plan comparison
-- Clear value proposition for each tier
-- Loading states and smooth transitions
-- Mobile-responsive grid layout
+**Funzionalità**:
+- Confronto side-by-side piani
+- Value proposition chiara per ogni tier
+- Loading states e transizioni fluide
+- Layout grid responsive per mobile
 
-**Plans**:
-- **FREE**: Join games, basic stats, global leaderboards
-- **PREMIUM**: $4.99 one-time, create rooms, custom questions, no ads
+**Piani**:
+- **FREE**: Partecipa ai giochi, stats base, classifiche globali
+- **PREMIUM**: $4.99 una tantum, crea stanze, domande custom, no ads
 
 ---
 
-## 🎮 Core Gameplay Experience
+## 🎮 Esperienza Gameplay Core
 
 ### 5. **Lobby** (`lobby.html`)
-**Purpose**: Central hub for game management and user engagement
+**Scopo**: Hub centrale per gestione giochi e engagement utenti
 
-#### **FREE User Experience**:
-- **Top Banner Ad**: 728x90 Google AdSense banner
+#### **Esperienza Utente FREE**:
+- **Banner Ad Top**: Google AdSense banner 728x90
 - **Native Ad**: AdMob native ad in sidebar
-- **Feature Limitations**: Can only join games, cannot create
-- **Upgrade Prompts**: Premium pricing card with benefits
-- **Advertisement Disclaimer**: "Ads help keep BrainBrawler free"
+- **Limitazioni Funzionalità**: Solo join giochi, no creazione
+- **Prompt Upgrade**: Card pricing premium con benefici
+- **Disclaimer Pubblicità**: "Gli annunci mantengono BrainBrawler gratuito"
 
-#### **PREMIUM User Experience**:
-- **Ad-Free Interface**: No advertisements displayed
-- **Premium Notice**: "Ad-free experience" confirmation
-- **Full Features**: Create rooms, manage questions, detailed stats
-- **Priority Support**: Enhanced user experience
+#### **Esperienza Utente PREMIUM**:
+- **Interfaccia Senza Ads**: Nessuna pubblicità mostrata
+- **Notice Premium**: Conferma "esperienza senza pubblicità"
+- **Funzionalità Complete**: Crea stanze, gestisci domande, stats dettagliate
+- **Support Prioritario**: Esperienza utente potenziata
 
-**Shared Features**:
-- Live room listings with 5-second updates
-- Quick match functionality
-- User profile with stats and achievements
-- Account type badge (FREE/PREMIUM)
+**Funzionalità Condivise**:
+- Elenco stanze live con aggiornamenti ogni 5 secondi
+- Funzionalità quick match
+- Profilo utente con stats e achievements
+- Badge tipo account (FREE/PREMIUM/ADMIN)
 
-### 6. **Question Management** (`manage-questions.html`)
-**Purpose**: Premium feature for creating and organizing custom questions
+### 6. **Gestione Domande** (`manage-questions.html`)
+**Scopo**: Funzionalità premium per creare e organizzare domande custom
 
-#### **Question Sets System**:
-- **Organization**: Questions grouped in sets (10-1000 questions per set)
-- **Multi-language Support**: IT 🇮🇹, EN 🇺🇸, ES 🇪🇸, DE 🇩🇪, FR 🇫🇷
-- **Custom Categories**: Users can create new categories or select existing ones
-- **Bulk Upload**: JSON file import with AI-compatible format
-- **Management Tools**: Create, edit, delete questions and sets
+#### **Sistema Question Sets**:
+- **Organizzazione**: Domande raggruppate in set (10-1000 domande per set)
+- **Supporto Multi-lingua**: IT 🇮🇹, EN 🇺🇸, ES 🇪🇸, DE 🇩🇪, FR 🇫🇷
+- **Categorie Custom**: Utenti possono creare nuove categorie o selezionare esistenti
+- **Upload Bulk**: Import file JSON con formato AI-compatibile
+- **Tools di Gestione**: Crea, modifica, elimina domande e set
 
-#### **Features**:
-- **Question Sets Tab**: Overview of all user's question collections
-- **Questions Browser**: Searchable list with filters (language, set, category, difficulty)
-- **Single Question Creator**: Form with validation and preview
-- **Bulk Upload**: Drag-and-drop JSON import with template download
-- **Real-time Filtering**: Instant search and filter across all content
+#### **Funzionalità**:
+- **Tab Question Sets**: Panoramica di tutte le collezioni domande utente
+- **Browser Domande**: Lista ricercabile con filtri (lingua, set, categoria, difficoltà)
+- **Creator Singola Domanda**: Form con validazione e preview
+- **Upload Bulk**: Drag-and-drop import JSON con download template
+- **Filtri Real-time**: Ricerca istantanea e filtro su tutto il contenuto
 
-#### **JSON Import Format**:
+#### **Formato Import JSON**:
 ```json
 {
   "questionSet": {
-    "name": "General Knowledge Quiz",
-    "description": "A comprehensive quiz covering various topics",
-    "language": "EN",
-    "category": "General"
+    "name": "Quiz Conoscenza Generale",
+    "description": "Un quiz completo che copre vari argomenti",
+    "language": "IT",
+    "category": "Generale"
   },
   "questions": [
     {
-      "text": "What is the capital of France?",
-      "options": ["London", "Berlin", "Paris", "Madrid"],
+      "text": "Qual è la capitale della Francia?",
+      "options": ["Londra", "Berlino", "Parigi", "Madrid"],
       "correctAnswer": 2,
       "difficulty": "EASY",
-      "category": "Geography", 
-      "explanation": "Paris has been the capital of France since 987 AD."
+      "category": "Geografia", 
+      "explanation": "Parigi è stata la capitale della Francia dal 987 d.C."
     }
   ]
 }
 ```
 
-### 7. **Room Creation** (`create-room.html`)
-**Purpose**: Premium feature for creating custom quiz rooms
+### 7. **Creazione Stanza** (`create-room.html`)
+**Scopo**: Funzionalità premium per creare stanze quiz custom
 
-#### **Room Configuration**:
-- **Language Selection**: Room language determines available question sets
-- **Live Validation**: Real-time room name availability checking
-- **Player Limits**: 2-10 players maximum
-- **Timing Options**: 5, 10, 15, or 20 seconds per question
-- **Question Count**: 5, 10, 25, or 100 questions per game
-- **Question Set Selection**: Only user's own question sets available
-- **Privacy Options**: Public or password-protected private rooms
+#### **Configurazione Stanza**:
+- **Selezione Lingua**: La lingua della stanza determina i question set disponibili
+- **Validazione Live**: Controllo disponibilità nome stanza real-time
+- **Limiti Giocatori**: Massimo 2-10 giocatori
+- **Opzioni Timing**: 5, 10, 15, o 20 secondi per domanda
+- **Conteggio Domande**: 5, 10, 25, o 100 domande per gioco
+- **Selezione Question Set**: Solo i question set dell'utente disponibili
+- **Opzioni Privacy**: Stanze pubbliche o private protette da password
 
-#### **Smart Features**:
-- **Language Filtering**: Question sets filtered by selected room language
-- **Availability Check**: Prevents duplicate room names with visual feedback
-- **Question Set Preview**: Displays set details, question count, and category
-- **Form Validation**: Comprehensive checks before room creation
-- **User Isolation**: Each premium user sees only their own question sets
+#### **Funzionalità Smart**:
+- **Filtro Lingua**: Question set filtrati per lingua stanza selezionata
+- **Check Disponibilità**: Previene nomi stanza duplicati con feedback visuale
+- **Preview Question Set**: Mostra dettagli set, conteggio domande e categoria
+- **Validazione Form**: Controlli completi prima creazione stanza
+- **Isolamento Utente**: Ogni utente premium vede solo i propri question set
 
-### 8. **Game Room** (To be implemented)
-**Purpose**: Pre-game lobby for participants
+### 8. **Waiting Room** (`waiting-room.html`)
+**Scopo**: Lobby pre-gioco per partecipanti
 
-#### **FREE User Features**:
-- Join existing rooms only
-- Basic chat functionality
-- View room settings (read-only)
-- Standard question sets only
+#### **Funzionalità Implementate**:
+- **Informazioni Stanza**: Nome, lingua, categoria, timing, totale domande
+- **Griglia Giocatori**: Visualizzazione giocatori connessi con avatar
+- **Ruolo Creator**: Distintivo speciale per creatore stanza
+- **Controlli Gioco**: Start gioco (solo creator), lascia stanza
+- **Stato Real-time**: Aggiornamenti live dei giocatori che si uniscono/lasciano
+- **Gestione Password**: Per stanze private
 
-#### **PREMIUM User Features**:
-- Create and configure rooms
-- Upload custom question sets
-- Room moderation tools
-- Private rooms with passwords
-- Custom room themes
+#### **Esperienza FREE vs PREMIUM**:
+- **FREE**: Può solo unirsi a stanze esistenti
+- **PREMIUM**: Può creare e gestire stanze, controllo completo parametri
 
-#### **Monetization**:
-- **FREE**: Small banner ad at bottom of room
-- **PREMIUM**: Clean, ad-free interface
+### 9. **Gameplay** (`game.html`)
+**Scopo**: Esperienza quiz core con competizione real-time
 
-### 9. **Gameplay** (To be implemented)
-**Purpose**: Core quiz experience with real-time competition
+#### **Meccaniche di Gioco**:
+- **Display Domande**: Tempo configurabile (5, 10, 15, o 20 secondi per domanda)
+- **Selezione Risposte**: Scelta multipla (A, B, C, D)
+- **Sistema Punteggio**: Punti basati su velocità e accuratezza
+- **Aggiornamenti Real-time**: Classifica live durante il gioco
+- **Supporto Multi-lingua**: Domande nella lingua selezionata stanza
+- **Lunghezza Flessibile**: 5, 10, 25, o 100 domande per gioco
 
-#### **Game Mechanics**:
-- **Question Display**: Configurable time (5, 10, 15, or 20 seconds per question)
-- **Answer Selection**: Multiple choice (A, B, C, D)
-- **Scoring System**: Points based on speed and accuracy
-- **Real-time Updates**: Live leaderboard during game
-- **Multi-language Support**: Questions in room's selected language
-- **Flexible Length**: 5, 10, 25, or 100 questions per game
+#### **Esperienza Utente FREE**:
+- **Banner Ads**: Annunci sotto ogni domanda
+- **Question Set Standard**: Solo categorie curate
+- **Analytics Base**: Solo punteggio e posizione
+- **Ad Break**: Pubblicità 3 secondi prima risultati finali
+- **Solo Join**: Può unirsi a stanze ma non crearle
 
-#### **FREE User Experience**:
-- **Interstitial Ads**: Banner under every question
-- **Standard Question Sets**: Curated categories only
-- **Basic Analytics**: Score and position only
-- **Ad Break**: 3-second ad before final results
-- **Join Only**: Can join rooms but not create them
+#### **Esperienza Utente PREMIUM**:
+- **Gameplay Ininterrotto**: Nessuna pubblicità durante il gioco
+- **Domande Custom**: Accesso ai question set caricati dall'utente
+- **Creazione Stanze**: Controllo completo parametri gioco
+- **Stanze Private**: Giochi protetti da password con amici
+- **Analytics Dettagliate**: Tempi di risposta, trend accuratezza
+- **Contenuto Multi-lingua**: Crea e gioca in lingue multiple
 
-#### **PREMIUM User Experience**:
-- **Uninterrupted Gameplay**: No ads during game
-- **Custom Questions**: Access to user-uploaded question sets
-- **Room Creation**: Full control over game parameters
-- **Private Rooms**: Password-protected games with friends
-- **Detailed Analytics**: Response time, accuracy trends
-- **Multi-language Content**: Create and play in multiple languages
+### 10. **Statistiche Avanzate** (`advanced-stats.html`)
+**Scopo**: Funzionalità premium per analytics dettagliate performance
 
-#### **Technical Implementation**:
-- **WebSocket Communication**: Real-time game state
-- **Kafka Event Streaming**: Game events and analytics
-- **Redis Caching**: Fast leaderboard updates
-- **Anti-cheat Measures**: Server-side validation
-- **Question Set Integration**: Dynamic loading from user's custom sets
+#### **Funzionalità Implementate**:
+- **Dashboard Overview**: Cards con metriche chiave (giochi totali, vittorie, accuratezza media)
+- **Grafici Interattivi**: Chart.js per visualizzazione dati nel tempo
+- **Analisi Performance**: Breakdown per categoria, difficoltà, lingua
+- **Filtri Temporali**: Visualizzazione dati per settimana, mese, anno
+- **Leaderboard**: Posizione vs altri giocatori premium
+- **Export Dati**: Funzionalità per esportare statistiche
 
-### 10. **Results & Statistics**
-**Purpose**: Show performance, encourage retention and upgrade
-
-#### **FREE User Features**:
-- **Basic Stats**: Score, rank, correct answers
-- **Banner Ad**: Post-game advertisement
-- **Social Sharing**: Basic score sharing
-- **Language Context**: Results show which language was played
-- **Upgrade Prompt**: "See detailed stats with Premium"
-
-#### **PREMIUM User Features**:
-- **Detailed Analytics**: Response time graphs, accuracy trends
-- **Historical Data**: Performance over time by question set and language
-- **Question Set Performance**: Analytics per custom question set
-- **Comparison Tools**: vs friends, global averages
-- **Multi-language Tracking**: Performance across different languages
-- **Export Data**: CSV/PDF reports with question set breakdowns
+#### **Metriche Trackate**:
+- **Performance nel Tempo**: Trend accuratezza e punteggi
+- **Analisi per Categoria**: Performance su diverse tipologie domande
+- **Tempi di Risposta**: Velocità media per difficoltà
+- **Question Set Performance**: Analytics sui set domande custom
+- **Confronti**: vs media globale e amici
 
 ---
 
-## 💰 Monetization Strategy
+## 💰 Strategia Monetizzazione
 
-### **Advertisement Implementation**
+### **Implementazione Pubblicità**
 
-#### **Google AdSense Integration**:
+#### **Integrazione Google AdSense**:
 ```html
-<!-- Banner Ads (FREE users) -->
+<!-- Banner Ads (utenti FREE) -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <ins class="adsbygoogle"
      style="display:block"
@@ -258,150 +247,133 @@ graph TD
      data-ad-format="auto"></ins>
 ```
 
-#### **AdMob Native Ads**:
-```javascript
-// For mobile web/PWA implementation
-if (window.admob) {
-    admob.createBanner({
-        adId: 'ca-app-pub-XXXXXXXXXX/XXXXXXXXXX',
-        position: admob.POSITION.TOP_BANNER,
-        autoShow: true
-    });
-}
-```
+#### **Strategia Posizionamento Ad**:
+1. **Lobby**: Banner top (728x90) + Native ad sidebar
+2. **Gameplay**: Banner sotto ogni domanda
+3. **Risultati**: Interstitial fullscreen prima stats con countdown 3 secondi
 
-#### **Ad Placement Strategy**:
-1. **Lobby**: Top banner (728x90) + Native ad sidebar
-2. **Game Room**: Small banner at bottom
-3. **Gameplay**: Small banner at bottom
-4. **Results**: Full-screen interstitial before stats with 3 second countdown
-
-#### **Revenue Optimization**:
-- **Ad Frequency**: Balanced to avoid user annoyance
-- **Targeting**: Quiz category-based ad targeting
-- **A/B Testing**: Different ad placements and frequencies
-- **User Feedback**: Monitor upgrade rates after ad exposure
-
-### **Premium Conversion Strategy**
+### **Strategia Conversione Premium**
 
 #### **Value Proposition**:
-- **Ad Removal**: Primary motivation for casual users
-- **Creative Tools**: Room creation for engaged users
-- **Social Features**: Private rooms for friend groups
-- **One-time Payment**: No subscription fatigue
+- **Rimozione Ad**: Motivazione primaria per utenti casual
+- **Tools Creativi**: Creazione stanze per utenti coinvolti
+- **Funzionalità Sociali**: Stanze private per gruppi amici
+- **Pagamento Una Tantum**: No subscription fatigue
 
-#### **Conversion Touchpoints**:
-1. **Account Setup**: Initial plan selection
-2. **Lobby Upgrade Card**: Always visible to FREE users
-3. **Feature Blocks**: When trying to create room
-4. **Post-Ad Experience**: "Tired of ads?" prompts
-5. **Social Moments**: "Create private room for friends"
-
----
-
-## 🎨 Design Principles
-
-### **Visual Hierarchy**:
-- **Brain Theme**: Consistent 🧠 iconography
-- **Purple Gradient**: Primary brand colors (#667eea to #764ba2)
-- **Clean Typography**: Inter font family for readability
-- **Glassmorphism**: Subtle backdrop blur effects
-
-### **Accessibility**:
-- **Color Contrast**: WCAG 2.1 AA compliance
-- **Keyboard Navigation**: Full tab support
-- **Screen Readers**: Semantic HTML and ARIA labels
-- **Mobile First**: Responsive design philosophy
-
-### **Performance**:
-- **Lazy Loading**: Images and ads loaded on demand
-- **Code Splitting**: Route-based JS bundles
-- **CDN Assets**: Fast global content delivery
-- **Offline Support**: PWA capabilities for core features
+#### **Touchpoint Conversione**:
+1. **Account Setup**: Selezione piano iniziale
+2. **Lobby Upgrade Card**: Sempre visibile per utenti FREE
+3. **Feature Blocks**: Quando prova a creare stanza
+4. **Post-Ad Experience**: Prompt "Stanco delle pubblicità?"
+5. **Momenti Sociali**: "Crea stanza privata per amici"
 
 ---
 
-## 📊 Analytics & Metrics
+## 🎨 Principi Design
 
-### **User Engagement Metrics**:
-- **DAU/MAU**: Daily and monthly active users
-- **Session Length**: Time spent in app
-- **Games per Session**: Engagement depth
-- **Retention Rates**: 1-day, 7-day, 30-day
+### **Gerarchia Visiva**:
+- **Tema Brain**: Iconografia 🧠 consistente
+- **Gradiente Purple**: Colori brand primari (#667eea to #764ba2)
+- **Tipografia Pulita**: Font family Inter per leggibilità
+- **Glassmorphism**: Effetti backdrop blur sottili
 
-### **Monetization Metrics**:
-- **Ad Revenue per User**: FREE user monetization
-- **Conversion Rate**: FREE to PREMIUM upgrade
-- **ARPU**: Average revenue per user
-- **Churn Rate**: User dropout analysis
-
-### **Premium User Metrics**:
-- **Feature Adoption**: Room creation, custom questions
-- **User Generated Content**: Questions uploaded
-- **Social Engagement**: Private room usage
-- **Support Satisfaction**: Premium support quality
+### **Accessibilità**:
+- **Contrasto Colori**: Compliance WCAG 2.1 AA
+- **Navigazione Tastiera**: Supporto tab completo
+- **Screen Reader**: HTML semantico e label ARIA
+- **Mobile First**: Filosofia design responsive
 
 ---
 
-## 🚀 Future Enhancements
+## 📊 Analytics & Metriche
 
-### **Phase 2 Features**:
-- **Tournament Mode**: Organized competitions
-- **Leagues**: Skill-based matchmaking
-- **Team Play**: Collaborative quiz games
-- **Voice Chat**: In-game communication
+### **Metriche Engagement Utenti**:
+- **DAU/MAU**: Utenti attivi giornalieri e mensili
+- **Durata Sessione**: Tempo speso nell'app
+- **Giochi per Sessione**: Profondità engagement
+- **Tassi Retention**: 1-giorno, 7-giorni, 30-giorni
 
-### **Advanced Monetization**:
-- **Sponsorship Integration**: Branded question sets
-- **NFT Achievements**: Blockchain-based rewards
-- **Premium+**: Higher tier with exclusive features
-- **Corporate Plans**: Team building solutions
-
-### **Technical Improvements**:
-- **AI Question Generation**: Dynamic content creation
-- **Advanced Analytics**: ML-powered insights
-- **Global Leaderboards**: Worldwide competitions
-- **Multi-language Support**: International expansion
+### **Metriche Monetizzazione**:
+- **Revenue per User Ad**: Monetizzazione utenti FREE
+- **Tasso Conversione**: Upgrade FREE a PREMIUM
+- **ARPU**: Revenue medio per utente
+- **Churn Rate**: Analisi abbandono utenti
 
 ---
 
-## 🔧 Technical Architecture
+## 🚀 Architettura Tecnica
 
-### **Frontend Stack**:
-- **Vanilla JS**: Lightweight, fast loading
-- **Progressive Web App**: Mobile app experience
-- **WebSocket Client**: Real-time communication
-- **Service Workers**: Offline functionality
+### **Stack Frontend**:
+- **Vanilla JavaScript**: Leggero, caricamento veloce
+- **Progressive Web App**: Esperienza mobile app
+- **WebSocket Client**: Comunicazione real-time
+- **Service Workers**: Funzionalità offline
 
-### **Backend Stack**:
-- **Node.js/Express**: RESTful API server
-- **Socket.io**: Real-time game communication
-- **PostgreSQL**: User data and game state
-- **Redis**: Caching and session management
-- **Kafka**: Event streaming and analytics
+### **Stack Backend**:
+- **Node.js/Express**: Server API RESTful
+- **Socket.io**: Comunicazione gioco real-time
+- **PostgreSQL**: Dati utente e stato gioco
+- **Prisma ORM**: Database management
 
-### **DevOps & Scaling**:
-- **Docker Containers**: Consistent deployment
-- **Load Balancing**: Horizontal scaling
-- **CDN Integration**: Global content delivery
-- **Monitoring**: Real-time performance tracking
+### **Schema Database**:
+- **User**: Account con `accountType` (FREE/PREMIUM/ADMIN)
+- **QuestionSet**: Collezioni domande con `userId` per isolamento
+- **Game**: Stanze con `createdBy`, `questionSetId`, supporto multi-lingua
+- **GamePlayer**: Gestione partecipanti stanze
+- **Question**: Domande con supporto multi-lingua e spiegazioni
 
----
-
-## 📝 Success Metrics
-
-### **User Experience KPIs**:
-- **Time to First Game**: < 2 minutes from registration
-- **Game Completion Rate**: > 85%
-- **User Satisfaction**: > 4.5/5 rating
-- **Support Response Time**: < 24 hours
-
-### **Business KPIs**:
-- **Monthly Recurring Revenue**: From premium upgrades
-- **Cost per Acquisition**: Marketing efficiency
-- **Lifetime Value**: Long-term user value
-- **Market Share**: Competitive positioning
+### **Autenticazione**:
+- **JWT Tokens**: Stored in `localStorage` come `'brainbrawler_token'`
+- **User Data**: Stored come `'brainbrawler_user'` (non `'user'`)
+- **Premium Verification**: Controllo `accountType` per accesso funzionalità
 
 ---
 
-*This document serves as the comprehensive guide for BrainBrawler's user experience design and business model implementation.* 
+## 🔧 Funzionalità Implementate
+
+### **Sistema Utenti**:
+- ✅ Registrazione/Login con validazione real-time
+- ✅ Verifica email con codici 6 cifre
+- ✅ Setup account freemium
+- ✅ Google OAuth integration
+- ✅ Sistema di livelli e XP
+
+### **Funzionalità Premium**:
+- ✅ Creazione stanze custom con configurazioni avanzate
+- ✅ Gestione question set multi-lingua
+- ✅ Upload bulk domande formato JSON
+- ✅ Statistiche avanzate con Chart.js
+- ✅ Esperienza senza pubblicità
+
+### **Sistema Gioco**:
+- ✅ Lobby con elenco stanze live
+- ✅ Waiting room pre-gioco
+- ✅ Sistema real-time con Socket.io
+- ✅ Supporto stanze private con password
+- ✅ Multi-lingua (IT, EN, ES, DE, FR)
+
+### **Monetizzazione**:
+- ✅ Integrazione Google AdSense per utenti FREE
+- ✅ Sistema upgrade premium $4.99 una tantum
+- ✅ Feature gating per funzionalità premium
+- ✅ UI differenziata FREE vs PREMIUM
+
+---
+
+## 📝 Metriche Successo
+
+### **KPI Esperienza Utente**:
+- **Time to First Game**: < 2 minuti dalla registrazione
+- **Tasso Completamento Gioco**: > 85%
+- **Soddisfazione Utente**: > 4.5/5 rating
+- **Tempo Risposta Support**: < 24 ore
+
+### **KPI Business**:
+- **Monthly Recurring Revenue**: Da upgrade premium
+- **Costo per Acquisizione**: Efficienza marketing
+- **Lifetime Value**: Valore utente long-term
+- **Market Share**: Posizionamento competitivo
+
+---
+
+*Questo documento serve come guida completa per l'implementazione del design UX e modello business di BrainBrawler.*

@@ -28,7 +28,7 @@ router.get('/sets', authenticateToken, async (req, res) => {
 
     const questionSets = await prisma.questionSet.findMany({
       where: {
-        createdBy: userId
+        userId: userId
       },
       include: {
         _count: {
@@ -108,7 +108,7 @@ router.post('/sets', authenticateToken, async (req, res) => {
         description: description || null,
         language,
         category,
-        createdBy: userId,
+        userId: userId,
         isPublic: false
       }
     });
@@ -160,7 +160,7 @@ router.get('/my', authenticateToken, async (req, res) => {
     const questionSetItems = await prisma.questionSetItem.findMany({
       where: {
         questionSet: {
-          createdBy: userId
+          userId: userId
         }
       },
       include: {
@@ -257,7 +257,7 @@ router.post('/', authenticateToken, async (req, res) => {
     const questionSet = await prisma.questionSet.findFirst({
       where: {
         id: questionSetId,
-        createdBy: userId
+        userId: userId
       }
     });
 
@@ -429,7 +429,7 @@ router.post('/bulk-upload', authenticateToken, async (req, res) => {
           description: setData.description || null,
           language: setData.language,
           category: setData.category,
-          createdBy: userId,
+          userId: userId,
           isPublic: false
         }
       });
@@ -599,7 +599,7 @@ router.delete('/sets/:id', authenticateToken, async (req, res) => {
     const questionSet = await prisma.questionSet.findFirst({
       where: {
         id: questionSetId,
-        createdBy: userId
+        userId: userId
       }
     });
 

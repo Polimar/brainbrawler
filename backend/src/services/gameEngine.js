@@ -138,7 +138,34 @@ class GameEngine {
       }
 
       if (gameState.players.includes(userId)) {
-        throw new Error('Already in this room');
+        // Allow user to rejoin if already in room
+        console.log(`👤 User ${userId} rejoining room ${roomCode}`);
+        
+        // Get user info
+        const user = await this.prisma.user.findUnique({
+          where: { id: userId },
+          select: {
+            id: true,
+            username: true,
+            displayName: true,
+            avatar: true,
+            level: true
+          }
+        });
+
+        return {
+          success: true,
+          alreadyJoined: true,
+          gameState: {
+            roomCode,
+            status: gameState.status,
+            players: gameState.players,
+            questionSetInfo: gameState.questionSetInfo,
+            maxPlayers: 8,
+            timePerQuestion: 15
+          },
+          user
+        };
       }
 
       // Aggiungi player
@@ -148,7 +175,7 @@ class GameEngine {
       await this.setGameState(roomCode, gameState);
 
       // Ottieni info utente
-      const user = await this.prisma.user.findUnique({
+      const userInfo = await this.prisma.user.findUnique({
         where: { id: userId },
         select: {
           id: true,
@@ -171,7 +198,7 @@ class GameEngine {
           maxPlayers: 8,
           timePerQuestion: 15
         },
-        user
+        user: userInfo
       };
     } catch (error) {
       console.error('Error joining room:', error);
@@ -182,231 +209,277 @@ class GameEngine {
   // Inizia la partita
   async startGame(userId, roomCode) {
     try {
+      console.log(`🚀 StartGame called for room ${roomCode} by user ${userId}`);
       const gameState = await this.getGameState(roomCode);
       
       if (!gameState) {
+        console.error(`❌ CRITICAL: Game state not found for room ${roomCode}`);
         throw new Error('Room not found');
       }
+      
+      console.log(`✅ Game state retrieved for ${roomCode}: status=${gameState.status}, questions=${gameState.questions?.length}, players=${gameState.players?.length}`);
 
       if (gameState.hostUserId !== userId) {
         throw new Error('Only host can start the game');
       }
 
-      if (gameState.players.length < 2) {
-        throw new Error('Need at least 2 players');
+      if (gameState.players.length < 1) {
+        throw new Error('Need at least 1 player');
       }
 
       if (gameState.status !== 'LOBBY') {
         throw new Error('Game already started');
       }
 
-      // Aggiorna stato
-      gameState.status = 'STARTING';
-      gameState.currentQuestion = 0;
+      // Update game status
+      gameState.status = 'ACTIVE';
       gameState.startedAt = Date.now();
-
+      gameState.currentQuestion = 0;
+      
       await this.setGameState(roomCode, gameState);
 
-      // Aggiorna database
+      // Update database
       await this.prisma.game.update({
         where: { roomCode },
-        data: {
-          status: 'STARTING',
+        data: { 
+          status: 'ACTIVE',
           startedAt: new Date()
         }
       });
 
-      // Notifica tutti i player
-      this.io.to(roomCode).emit('game-starting', {
-        message: 'Game starting in 3 seconds...',
-        countdown: 3
+      console.log(`🚀 Game starting in room ${roomCode} with ${gameState.players.length} players`);
+
+      // Notify all players game is starting
+      this.io.to(roomCode).emit('game-started', {
+        message: 'Game is starting!',
+        totalQuestions: gameState.questions.length,
+        players: gameState.players
       });
 
-      // Avvia countdown
+      // Start questions with delay
       setTimeout(() => this.startQuestion(roomCode), 3000);
 
-      console.log(`🚀 Game starting in room ${roomCode}`);
+      return {
+        success: true,
+        message: 'Game started successfully',
+        gameState: {
+          roomCode,
+          status: gameState.status,
+          totalQuestions: gameState.questions.length,
+          players: gameState.players.length
+        }
+      };
     } catch (error) {
       console.error('Error starting game:', error);
       throw error;
     }
   }
 
-  // Avvia una domanda
+  // Inizia una domanda
   async startQuestion(roomCode) {
     try {
+      console.log(`📚 StartQuestion called for room ${roomCode}`);
       const gameState = await this.getGameState(roomCode);
       
-      if (!gameState) return;
+      if (!gameState || gameState.status !== 'ACTIVE') {
+        console.log(`⚠️ Game ${roomCode} is no longer active or not found. State: ${gameState?.status || 'null'}`);
+        return;
+      }
 
       if (gameState.currentQuestion >= gameState.questions.length) {
-        return this.endGame(roomCode);
+        await this.endGame(roomCode);
+        return;
       }
 
       const question = gameState.questions[gameState.currentQuestion];
-      
-      gameState.status = 'IN_PROGRESS';
-      gameState.questionStartTime = Date.now();
-      gameState.answers[gameState.currentQuestion] = {};
+      const questionNumber = gameState.currentQuestion + 1;
+      const timeLimit = gameState.timePerQuestion || 15;
 
+      console.log(`❓ Starting question ${questionNumber} in room ${roomCode}: ${question.text}`);
+
+      // Clear previous answers and set question start time (server-side)
+      gameState.answers[gameState.currentQuestion] = {};
+      gameState.questionStartTime = Date.now(); // Server timestamp when question starts
       await this.setGameState(roomCode, gameState);
 
-      // Aggiorna database
-      await this.prisma.game.update({
-        where: { roomCode },
-        data: {
-          status: 'IN_PROGRESS',
-          currentQuestion: gameState.currentQuestion
-        }
-      });
-
-      // Invia domanda ai client (senza risposta corretta)
-      const questionForClient = {
-        id: question.id,
-        text: question.text,
-        options: question.options,
-        imageUrl: question.imageUrl,
-        timeLimit: question.timeLimit || 15,
-        questionNumber: gameState.currentQuestion + 1,
-        totalQuestions: gameState.questions.length
+      // Send question to all players via Socket.io
+      const questionData = {
+        question: {
+          id: question.id,
+          text: question.text,
+          options: question.options,
+          // Don't send correct answer to frontend
+        },
+        questionNumber: questionNumber,
+        totalQuestions: gameState.questions.length,
+        timeLimit: timeLimit,
+        roomCode: roomCode
       };
 
-      this.io.to(roomCode).emit('question-start', {
-        question: questionForClient,
-        timeRemaining: question.timeLimit || 15
+      console.log(`📝 Sending question ${questionNumber} to room ${roomCode}:`, {
+        text: question.text,
+        options: question.options,
+        players: gameState.players.length
       });
+      
+      this.io.to(roomCode).emit('game-question', questionData);
+      console.log(`✅ Question ${questionNumber} emitted to Socket.io room ${roomCode}`);
 
-      // Avvia timer per fine domanda
+      // Set timer for question end
       const timer = setTimeout(() => {
+        console.log(`⏰ Time's up for question ${questionNumber} in room ${roomCode}`);
         this.endQuestion(roomCode);
-      }, (question.timeLimit || 15) * 1000);
+      }, timeLimit * 1000);
 
       this.gameTimers.set(`${roomCode}-question`, timer);
 
-      console.log(`❓ Question ${gameState.currentQuestion + 1} started in room ${roomCode}`);
+      console.log(`📝 Question ${questionNumber} sent to ${gameState.players.length} players in room ${roomCode}`);
+
     } catch (error) {
       console.error('Error starting question:', error);
     }
   }
 
-  // Gestisce risposta del player
-  async submitAnswer(userId, roomCode, questionId, answer, timestamp) {
+  // Gestisce l'invio di una risposta
+  async submitAnswer(userId, roomCode, questionIndex, answer) {
     try {
       const gameState = await this.getGameState(roomCode);
       
-      if (!gameState || gameState.status !== 'IN_PROGRESS') {
-        return;
+      if (!gameState || gameState.status !== 'ACTIVE') {
+        throw new Error('Game not active');
       }
 
-      const currentQuestion = gameState.questions[gameState.currentQuestion];
-      
-      if (currentQuestion.id !== questionId) {
-        return; // Domanda non corrente
+      if (questionIndex !== gameState.currentQuestion) {
+        throw new Error('Invalid question index');
       }
 
-      // Verifica se ha già risposto
-      if (gameState.answers[gameState.currentQuestion][userId]) {
-        return; // Già risposto
+      // Check if player already answered
+      if (gameState.answers[questionIndex] && gameState.answers[questionIndex][userId]) {
+        throw new Error('Already answered this question');
       }
 
-      // Calcola tempo di risposta
-      const responseTime = timestamp - gameState.questionStartTime;
+      const currentQuestion = gameState.questions[questionIndex];
       const isCorrect = answer === currentQuestion.correctAnswer;
       
-      // Calcola punteggio
-      const score = this.calculateScore(isCorrect, responseTime, currentQuestion.timeLimit || 15);
+      // Calculate response time using server-side timing (ABSOLUTE TIME)
+      const responseTime = Date.now() - gameState.questionStartTime;
+      
+      console.log(`⏱️ SERVER-SIDE TIMING: Question started at ${gameState.questionStartTime}, answered at ${Date.now()}, responseTime: ${responseTime}ms`);
 
-      // Salva risposta
-      gameState.answers[gameState.currentQuestion][userId] = {
-        answer,
-        timestamp,
-        responseTime,
-        isCorrect,
-        score
+      // Store answer
+      if (!gameState.answers[questionIndex]) {
+        gameState.answers[questionIndex] = {};
+      }
+
+      gameState.answers[questionIndex][userId] = {
+        answer: answer,
+        isCorrect: isCorrect,
+        responseTime: responseTime,
+        serverTimestamp: Date.now() // When server received the answer
       };
-
-      // Aggiorna punteggio totale
-      gameState.scores[userId] += score;
 
       await this.setGameState(roomCode, gameState);
 
-      // Conferma ricezione al player
-      const socket = [...this.io.sockets.sockets.values()]
-        .find(s => s.user?.id === userId);
-      
-      if (socket) {
-        socket.emit('answer-confirmed', {
-          score,
-          isCorrect,
-          responseTime
-        });
-      }
+      console.log(`📝 Answer received from ${userId} for question ${questionIndex + 1}: ${answer} (${isCorrect ? 'correct' : 'wrong'})`);
 
-      // Controlla se tutti hanno risposto
-      const totalPlayers = gameState.players.length;
-      const totalAnswers = Object.keys(gameState.answers[gameState.currentQuestion]).length;
-
-      if (totalAnswers >= totalPlayers) {
-        // Tutti hanno risposto, termina domanda
-        clearTimeout(this.gameTimers.get(`${roomCode}-question`));
-        this.endQuestion(roomCode);
-      }
-
-      console.log(`💬 Answer submitted by ${userId} in room ${roomCode}: ${isCorrect ? 'CORRECT' : 'WRONG'}`);
+      return {
+        success: true,
+        isCorrect: isCorrect,
+        responseTime: responseTime
+      };
     } catch (error) {
       console.error('Error submitting answer:', error);
+      throw error;
     }
   }
 
-  // Termina la domanda corrente
+  // Termina una domanda e mostra risultati
   async endQuestion(roomCode) {
     try {
       const gameState = await this.getGameState(roomCode);
       
-      if (!gameState) return;
+      if (!gameState || gameState.status !== 'ACTIVE') {
+        return;
+      }
 
       const currentQuestion = gameState.questions[gameState.currentQuestion];
-      const answers = gameState.answers[gameState.currentQuestion];
-
-      // Prepara risultati
-      const results = gameState.players.map(playerId => {
-        const playerAnswer = answers[playerId];
-        return {
-          userId: playerId,
-          answer: playerAnswer?.answer ?? null,
-          isCorrect: playerAnswer?.isCorrect ?? false,
-          score: playerAnswer?.score ?? 0,
-          responseTime: playerAnswer?.responseTime ?? null
+      const correctAnswer = currentQuestion.correctAnswer;
+      const answers = gameState.answers[gameState.currentQuestion] || {};
+      
+      console.log(`⏰ Time's up for question ${gameState.currentQuestion + 1} in room ${roomCode}`);
+      
+      // Calculate scores for this question
+      const questionScores = {};
+      const playerAnswers = {};
+      
+      for (const playerId of gameState.players) {
+        const answer = answers[playerId];
+        const isCorrect = answer !== undefined && answer.answer === correctAnswer;
+        
+        playerAnswers[playerId] = {
+          answer: answer?.answer,
+          isCorrect: isCorrect,
+          responseTime: answer?.responseTime || null
         };
-      });
+        
+        // Calcola sempre i punti, sia per risposte corrette che sbagliate
+        // Se il player non ha risposto (timeout), consideriamo come risposta sbagliata
+        const responseTime = answer?.responseTime || 0;
+        const questionTime = currentQuestion.timeLimit || gameState.timePerQuestion || 15;
+        const points = this.calculateScore(isCorrect, responseTime, questionTime * 1000);
+        
+        gameState.scores[playerId] = (gameState.scores[playerId] || 0) + points;
+        questionScores[playerId] = points;
+        
+        console.log(`🎯 Player ${playerId}: ${isCorrect ? 'CORRECT' : 'WRONG'} answer, ${points} points (total: ${gameState.scores[playerId]})`);
+      }
 
-      // Invia risultati
-      this.io.to(roomCode).emit('question-end', {
-        correctAnswer: currentQuestion.correctAnswer,
-        explanation: currentQuestion.explanation,
-        results,
-        leaderboard: this.getLeaderboard(gameState.scores),
-        nextQuestionIn: 5
-      });
-
-      // Avanza alla prossima domanda
-      gameState.currentQuestion++;
       await this.setGameState(roomCode, gameState);
 
-      // Timer per prossima domanda o fine gioco
-      const timer = setTimeout(() => {
-        if (gameState.currentQuestion >= gameState.questions.length) {
-          this.endGame(roomCode);
-        } else {
-          this.startQuestion(roomCode);
-        }
-      }, 5000);
+      // Send results to all players
+      this.io.to(roomCode).emit('game-results', {
+        questionNumber: gameState.currentQuestion + 1,
+        correctAnswer: correctAnswer,
+        correctOption: currentQuestion.options[correctAnswer],
+        scores: gameState.scores,
+        questionScores: questionScores,
+        playerAnswers: playerAnswers,
+        explanation: currentQuestion.explanation || null
+      });
 
-      this.gameTimers.set(`${roomCode}-next`, timer);
+      console.log(`📊 Results sent for question ${gameState.currentQuestion + 1} in room ${roomCode}`);
+      
+      // Move to next question after showing results
+      setTimeout(() => {
+        this.nextQuestion(roomCode);
+      }, 5000); // Show results for 5 seconds
 
-      console.log(`✅ Question ended in room ${roomCode}`);
     } catch (error) {
       console.error('Error ending question:', error);
+    }
+  }
+
+  // Passa alla domanda successiva o termina il gioco
+  async nextQuestion(roomCode) {
+    try {
+      const gameState = await this.getGameState(roomCode);
+      
+      if (!gameState || gameState.status !== 'ACTIVE') {
+        return;
+      }
+
+      gameState.currentQuestion++;
+      
+      if (gameState.currentQuestion >= gameState.questions.length) {
+        // Game finished
+        await this.endGame(roomCode);
+      } else {
+        // Start next question
+        await this.setGameState(roomCode, gameState);
+        await this.startQuestion(roomCode);
+      }
+    } catch (error) {
+      console.error('Error moving to next question:', error);
     }
   }
 
@@ -415,141 +488,272 @@ class GameEngine {
     try {
       const gameState = await this.getGameState(roomCode);
       
-      if (!gameState) return;
+      if (!gameState) {
+        return;
+      }
 
       gameState.status = 'FINISHED';
       gameState.endedAt = Date.now();
-
-      // Calcola classifica finale
-      const finalLeaderboard = this.getLeaderboard(gameState.scores);
       
-      // Salva risultati nel database
-      for (let i = 0; i < finalLeaderboard.length; i++) {
-        const player = finalLeaderboard[i];
-        
-        // Calcola statistiche
-        let correctAnswers = 0;
-        let totalResponseTime = 0;
-        let answeredQuestions = 0;
+      // Calculate final leaderboard with detailed stats
+      const leaderboard = await this.getLeaderboard(gameState.scores, gameState);
+      
+      // Calculate game statistics
+      const gameStats = {
+        totalQuestions: gameState.questions.length,
+        gameDuration: gameState.endedAt - gameState.startedAt,
+        totalPlayers: gameState.players.length,
+        averageScore: Object.values(gameState.scores).reduce((a, b) => a + b, 0) / gameState.players.length
+      };
 
-        for (let q = 0; q < gameState.currentQuestion; q++) {
-          const answer = gameState.answers[q]?.[player.userId];
-          if (answer) {
-            answeredQuestions++;
-            if (answer.isCorrect) correctAnswers++;
-            totalResponseTime += answer.responseTime;
-          }
-        }
-
-        const avgResponseTime = answeredQuestions > 0 ? totalResponseTime / answeredQuestions : 0;
-        const xpGained = this.calculateXP(i + 1, correctAnswers, finalLeaderboard.length);
-
-        await this.prisma.gameResult.create({
-          data: {
-            gameId: gameState.gameId,
-            userId: player.userId,
-            finalScore: player.score,
-            finalRank: i + 1,
-            correctAnswers,
-            totalAnswers: answeredQuestions,
-            avgResponseTime,
-            xpGained
-          }
-        });
-
-        // Aggiorna statistiche utente
-        await this.prisma.user.update({
-          where: { id: player.userId },
-          data: {
-            totalGamesPlayed: { increment: 1 },
-            totalWins: i === 0 ? { increment: 1 } : undefined,
-            totalScore: { increment: player.score },
-            xp: { increment: xpGained }
-          }
-        });
-      }
-
-      // Aggiorna stato gioco nel database
+      // Update database and clear all players from the room
       await this.prisma.game.update({
         where: { roomCode },
         data: {
           status: 'FINISHED',
-          endedAt: new Date()
+          endedAt: new Date(),
+          currentPlayers: 0 // Reset player count to 0
         }
       });
+
+      // Mark all players as inactive when game finishes
+      // First, get the game ID from roomCode
+      const finishedGame = await this.prisma.game.findUnique({
+        where: { roomCode: roomCode },
+        select: { id: true }
+      });
+
+      if (finishedGame) {
+        await this.prisma.gamePlayer.updateMany({
+          where: {
+            gameId: finishedGame.id,
+            isActive: true
+          },
+          data: {
+            isActive: false,
+            leftAt: new Date()
+          }
+        });
+      }
+
+      // Save player results
+      for (const playerId of gameState.players) {
+        const score = gameState.scores[playerId] || 0;
+        const correctAnswers = Object.values(gameState.answers).filter(
+          questionAnswers => questionAnswers[playerId]?.isCorrect
+        ).length;
+
+        await this.updatePlayerStats(playerId, score, correctAnswers, gameState.questions.length);
+      }
 
       await this.setGameState(roomCode, gameState);
 
-      // Invia risultati finali
-      this.io.to(roomCode).emit('game-end', {
-        finalLeaderboard,
-        gameStats: {
-          totalQuestions: gameState.questions.length,
-          totalPlayers: gameState.players.length,
-          duration: gameState.endedAt - gameState.startedAt
-        }
+      // Send final results to all players
+      this.io.to(roomCode).emit('game-ended', {
+        message: 'Game completed!',
+        leaderboard: leaderboard,
+        gameStats: gameStats,
+        finalScores: gameState.scores,
+        redirect: '/lobby.html'
       });
 
-      // Cleanup
+      // Clean up timers
       this.clearGameTimers(roomCode);
-      
-      // Rimuovi stato del gioco dopo 5 minuti
+
+      // Delete game state after some time
       setTimeout(() => {
         this.deleteGameState(roomCode);
-      }, 5 * 60 * 1000);
+      }, 30000); // Keep for 30 seconds
 
-      console.log(`🏁 Game ended in room ${roomCode}`);
+      console.log(`🏁 Game ended in room ${roomCode}. Winner: ${leaderboard[0]?.username || 'Unknown'}`);
+      console.log(`🧹 All players marked inactive and room cleared for future games`);
+
     } catch (error) {
       console.error('Error ending game:', error);
     }
   }
 
-  // Calcola punteggio
+  // Aggiorna le statistiche del giocatore
+  async updatePlayerStats(userId, score, correctAnswers, totalQuestions) {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId }
+      });
+
+      if (!user) return;
+
+      const isWin = correctAnswers > totalQuestions / 2; // More than 50% correct = win
+      const xpGained = this.calculateXP(correctAnswers, totalQuestions, score);
+
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          totalGamesPlayed: { increment: 1 },
+          totalWins: isWin ? { increment: 1 } : undefined,
+          totalScore: { increment: score },
+          xp: { increment: xpGained },
+          level: Math.floor((user.xp + xpGained) / 1000) + 1 // Simple leveling
+        }
+      });
+
+      console.log(`📊 Updated stats for ${userId}: +${score} score, +${xpGained} XP`);
+    } catch (error) {
+      console.error('Error updating player stats:', error);
+    }
+  }
+
+  // Calcola punteggio con regole semplificate e logiche
   calculateScore(isCorrect, responseTime, timeLimit) {
-    if (!isCorrect) return 0;
+    // REGOLE:
+    // - Risposta corretta: +100 punti base
+    // - Risposta sbagliata: -100 punti (penalità)
+    // - Bonus tempo: Solo su risposte corrette, +100 / tempo_risposta_arrotondato
+    
+    if (!isCorrect) {
+      console.log(`🧮 Score calculation: WRONG ANSWER = -100 points`);
+      return -100; // Penalità per risposta sbagliata
+    }
 
-    const baseScore = 1000;
-    const maxTimeBonus = 500;
+    const baseScore = 100; // Punti base per risposta corretta
     
-    // Bonus tempo: più veloce = più punti
-    const timeBonus = Math.max(0, maxTimeBonus * (1 - responseTime / (timeLimit * 1000)));
+    // Converti responseTime da millisecondi a secondi e arrotonda all'unità
+    const responseTimeSeconds = Math.round(responseTime / 1000);
     
-    return Math.floor(baseScore + timeBonus);
+    // Bonus tempo: 100 / tempo_risposta (arrotondato), ma almeno 1 secondo per evitare divisione per 0
+    const timeForBonus = Math.max(1, responseTimeSeconds);
+    const timeBonus = Math.floor(100 / timeForBonus);
+    
+    const totalScore = baseScore + timeBonus;
+    
+    console.log(`🧮 Score calculation: CORRECT ANSWER base=${baseScore}, timeBonus=${timeBonus} (responseTime=${responseTime}ms = ${responseTimeSeconds}s), total=${totalScore}`);
+    
+    return totalScore;
   }
 
-  // Calcola XP
-  calculateXP(rank, correctAnswers, totalPlayers) {
-    const baseXP = correctAnswers * 10;
-    const rankBonus = Math.max(0, (totalPlayers - rank + 1) * 5);
-    return baseXP + rankBonus;
+  // Calcola XP guadagnati
+  calculateXP(correctAnswers, totalQuestions, score) {
+    let baseXP = 10; // XP base per partecipazione
+    let accuracyBonus = Math.floor((correctAnswers / totalQuestions) * 50); // Bonus per accuratezza
+    let scoreBonus = Math.floor(score / 100); // Bonus per punteggio alto
+    
+    return baseXP + accuracyBonus + scoreBonus;
   }
 
-  // Genera leaderboard
-  getLeaderboard(scores) {
-    return Object.entries(scores)
-      .map(([userId, score]) => ({ userId, score }))
-      .sort((a, b) => b.score - a.score);
+  // Genera leaderboard dettagliata
+  async getLeaderboard(scores, gameState) {
+    try {
+      const leaderboard = [];
+      
+      for (const [userId, score] of Object.entries(scores)) {
+        // Calcola risposte corrette per questo player
+        let correctAnswers = 0;
+        let totalResponseTime = 0;
+        let responseTimes = [];
+        
+        // Conta risposte corrette e calcola tempo medio
+        Object.values(gameState.answers).forEach(questionAnswers => {
+          const playerAnswer = questionAnswers[userId];
+          if (playerAnswer) {
+            if (playerAnswer.isCorrect) {
+              correctAnswers++;
+            }
+            if (playerAnswer.responseTime) {
+              totalResponseTime += playerAnswer.responseTime;
+              responseTimes.push(playerAnswer.responseTime);
+            }
+          }
+        });
+        
+        const averageResponseTime = responseTimes.length > 0 
+          ? Math.round(totalResponseTime / responseTimes.length) 
+          : 0;
+        
+        const accuracy = gameState.questions.length > 0 
+          ? Math.round((correctAnswers / gameState.questions.length) * 100) 
+          : 0;
+        
+        // Ottieni info utente dal database
+        let userInfo = { username: 'Unknown', displayName: 'Unknown Player' };
+        try {
+          const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: { username: true, displayName: true }
+          });
+          if (user) {
+            userInfo = user;
+          }
+        } catch (error) {
+          console.error('Error fetching user info:', error);
+        }
+        
+        leaderboard.push({
+          userId,
+          username: userInfo.username,
+          displayName: userInfo.displayName,
+          score,
+          correctAnswers,
+          totalQuestions: gameState.questions.length,
+          accuracy,
+          averageResponseTime,
+          responseTimes
+        });
+      }
+      
+      // Ordina per punteggio decrescente
+      leaderboard.sort((a, b) => b.score - a.score);
+      
+      // Aggiungi posizioni
+      leaderboard.forEach((player, index) => {
+        player.position = index + 1;
+      });
+      
+      return leaderboard;
+    } catch (error) {
+      console.error('Error generating leaderboard:', error);
+      // Fallback al vecchio formato
+      return Object.entries(scores)
+        .map(([userId, score]) => ({ userId, score }))
+        .sort((a, b) => b.score - a.score);
+    }
   }
 
   // Gestione stato gioco in Redis/memoria
   async getGameState(roomCode) {
+    console.log(`🔍 Getting game state for room: ${roomCode}`);
+    
     if (this.redis) {
       try {
         const state = await this.redis.get(`game:${roomCode}`);
-        return state ? JSON.parse(state) : null;
+        if (state) {
+          const parsed = JSON.parse(state);
+          console.log(`✅ Found game state in Redis for ${roomCode}, status: ${parsed.status}, questions: ${parsed.questions?.length}`);
+          return parsed;
+        } else {
+          console.log(`❌ No game state found in Redis for ${roomCode}`);
+          return null;
+        }
       } catch (error) {
         console.error('Redis get error:', error);
       }
     }
     
     // Fallback a memoria (non persistente)
-    return this.memoryCache?.[roomCode] || null;
+    const memoryState = this.memoryCache?.[roomCode] || null;
+    if (memoryState) {
+      console.log(`✅ Found game state in memory for ${roomCode}, status: ${memoryState.status}, questions: ${memoryState.questions?.length}`);
+    } else {
+      console.log(`❌ No game state found in memory for ${roomCode}`);
+    }
+    return memoryState;
   }
 
   async setGameState(roomCode, state) {
+    console.log(`💾 Setting game state for room: ${roomCode}, status: ${state.status}, questions: ${state.questions?.length}`);
+    
     if (this.redis) {
       try {
         await this.redis.setex(`game:${roomCode}`, 3600, JSON.stringify(state));
+        console.log(`✅ Game state saved to Redis for ${roomCode}`);
         return;
       } catch (error) {
         console.error('Redis set error:', error);
@@ -559,6 +763,7 @@ class GameEngine {
     // Fallback a memoria
     this.memoryCache = this.memoryCache || {};
     this.memoryCache[roomCode] = state;
+    console.log(`✅ Game state saved to memory for ${roomCode}`);
   }
 
   async deleteGameState(roomCode) {

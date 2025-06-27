@@ -1,0 +1,23 @@
+{
+  "questionSet": {
+    "name": "Sample Quiz",
+    "description": "A sample question set for demonstration",
+    "language": "EN",
+    "category": "General"
+  },
+  "questions": [
+    {
+      "text": "What is the capital of France?",
+      "options": [
+        "London",
+        "Berlin",
+        "Paris",
+        "Madrid"
+      ],
+      "correctAnswer": 2,
+      "difficulty": "EASY",
+      "category": "Geography",
+      "explanation": "Paris has been the capital of France since 987 AD."
+    }
+  ]
+}

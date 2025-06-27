@@ -455,19 +455,27 @@
 
         function checkPremiumAccess() {
             const user = JSON.parse(localStorage.getItem('brainbrawler_user') || '{}');
-            if (!user.token || (user.accountType !== 'PREMIUM' && user.accountType !== 'ADMIN')) {
+            const token = localStorage.getItem('brainbrawler_token');
+            
+            console.log('🔍 Premium check - User:', user);
+            console.log('🔍 Premium check - Token:', token ? 'Present' : 'Missing');
+            console.log('🔍 Premium check - Account Type:', user.accountType);
+            
+            if (!token || (!user.accountType || (user.accountType !== 'PREMIUM' && user.accountType !== 'ADMIN'))) {
                 alert('This feature requires a Premium account! Upgrade now to access advanced statistics.');
                 window.location.href = 'lobby.html';
                 return;
             }
+            
+            console.log('✅ Premium access granted');
         }
 
         async function loadStatistics() {
             try {
-                const user = JSON.parse(localStorage.getItem('brainbrawler_user'));
+                const token = localStorage.getItem('brainbrawler_token');
                 const response = await fetch(`http://${window.location.hostname}:3000/api/stats/advanced?period=${currentTimeFilter}`, {
                     headers: {
-                        'Authorization': `Bearer ${user.token}`
+                        'Authorization': `Bearer ${token}`
                     }
                 });
 

@@ -662,9 +662,9 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    showSuccess('Room created successfully! Redirecting...');
+                    showSuccess('Room created successfully! Redirecting to lobby...');
                     setTimeout(() => {
-                        window.location.href = `game.html?roomId=${data.roomId}`;
+                        window.location.href = 'lobby.html';
                     }, 1500);
                 } else {
                     showError(data.message || 'Failed to create room');
